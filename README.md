@@ -5,5 +5,5 @@ This repository is meant to re-implement the server-side script's for horse isle
 (specifically based on: https://master.horseisle.com and https://pinto.horseisle.com)
 
 # What are the folders?
-master-site/ - Contains registration, fourms, help center, etc (master.horseisle.com)
-game-site/ - Contains the game client itself, and minimal PHP scripts to display the account page (pinto.horseisle.com or other server)
+master-site/ - Contains registration, fourms, help center, server list, and so on (based on master.horseisle.com)          
+game-site/ - Contains the game client itself, and minimal PHP scripts to display the account page (based on pinto.horseisle.com)         
