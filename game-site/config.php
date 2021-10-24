@@ -8,7 +8,7 @@ $dbpass = 'test123';
 $dbhost = '127.0.0.1';
 
 $all_users_subbed = false;
-$server_id = "beta";
+$server_id = "game1";
 $pp_uri = '/web/ppemu.php'; # location of paypal emulator on game-servers
 # original is https://www.paypal.com/cgi-bin/webscr which obviously wont do
 # Dont set it to that though, as the paypalgateway.php is not implemented.
