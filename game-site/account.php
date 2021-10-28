@@ -41,8 +41,8 @@ if(!is_logged_in() && isset($_GET["SLID"], $_GET["C"]))
 	$hmac = GenHmacMessage((string)$id, "CrossSiteLogin");
 	$hmacSent = bin2hex(base64_url_decode($code));
 	
-	if(hash_equals($hmacSent,$hmac))
-	{
+	if(hash_equals($hmacSent,$hmac) && userid_exists($dbname, $id))
+	{		
 		$_SESSION['LOGGED_IN'] = "YES";
 		$_SESSION['PLAYER_ID'] = $id;
 		$_SESSION['USERNAME'] = get_username($id);

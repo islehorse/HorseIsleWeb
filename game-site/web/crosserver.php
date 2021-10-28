@@ -8,7 +8,8 @@ function GenHmacMessage(string $data, string $channel)
 		echo("<h1>Set \$hmac_secret in config.php!</h1>");
 		exit();
 	}
-	$hmac = hash_hmac('sha256', $data, $hmac_secret.$channel.$_SERVER['REMOTE_ADDR'].date('mdy'));
+	$secret = $hmac_secret.$channel.$_SERVER['REMOTE_ADDR'].date('mdy');
+	$hmac = hash_hmac('sha256', $data, $secret);
 	return $hmac;
 }
 
@@ -221,7 +222,7 @@ function addItemToPuchaseQueue($database, $playerId, $itemId, $itemCount)
 	$stmt->bind_param("iii", $playerId, $itemId, $itemCount);
 	$stmt->execute();
 	$result = $stmt->get_result();
-	
+	mysqli_close($connect);
 }
 
 function getUserSubbed($database, $id)
@@ -232,10 +233,11 @@ function getUserSubbed($database, $id)
 	$stmt = $connect->prepare("SELECT Subscriber FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return $result->fetch_row()[0] == "YES";
-	
+	$result = $stmt->get_result();	
+	$subbed =  $result->fetch_row()[0] == "YES";
+	mysqli_close($connect);
+
+	return $subbed;
 }
 
 function isUserOnline($database, $id)
@@ -249,6 +251,8 @@ function isUserOnline($database, $id)
 	$stmt->execute();
 	$result = $stmt->get_result();
 	$count = intval($result->fetch_row()[0]);
+	mysqli_close($connect);
+
 	return $count>0;	
 }
 
@@ -258,7 +262,9 @@ function getNoModPlayersOnlineInServer($database)
 	$dbname = $database;
 	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
 	$onlineModerators = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Moderator = 'YES' OR Admin='YES'");
-	return $onlineModerators->fetch_row()[0];
+	$num = $onlineModerators->fetch_row()[0];
+	mysqli_close($connect);
+	return $num;
 }
 
 function getServerById(string $id)
@@ -283,6 +289,8 @@ function userid_exists(string $database, string $userid)
 	$stmt->execute();
 	$result = $stmt->get_result();
 	$count = intval($result->fetch_row()[0]);
+	mysqli_close($connect);
+
 	return $count>0;
 }
 
@@ -294,8 +302,8 @@ function createAccountOnServer(string $database)
 	$id = intval($_SESSION['PLAYER_ID']);
 	$username = $_SESSION['USERNAME'];
 	$sex = $_SESSION['SEX'];
-	$admin = $_SESSION['ADMIN'];
-	$mod = $_SESSION['MOD'];
+	$admin = ($_SESSION['ADMIN'] ? "YES" : "NO");
+	$mod = ($_SESSION['MOD'] ? "YES" : "NO");
 	$passhash = $_SESSION['PASSWORD_HASH'];
 	$salt = $_SESSION['SALT'];
 
@@ -304,6 +312,7 @@ function createAccountOnServer(string $database)
 	$stmt = $connect->prepare("INSERT INTO Users VALUES(?,?,?,?,?,?,?)"); 
 	$stmt->bind_param("issssss", $id, $username, $passhash, $salt, $sex, $admin, $mod);
 	$stmt->execute();
+	mysqli_close($connect);
 }
 
 # Global Functions
