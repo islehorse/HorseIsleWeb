@@ -15,7 +15,7 @@ if(isset($_POST["USER"], $_POST["PASS"]))
 	{
 		$_SESSION['LOGGED_IN'] = "YES";
 		$_SESSION['PLAYER_ID'] = $id;
-		$_SESSION['USERNAME'] = $username;
+		$_SESSION['USERNAME'] = get_username($id);
 		$_SESSION['SEX'] = get_sex($id);
 		$_SESSION['ADMIN'] = get_admin($id);
 		$_SESSION['MOD'] = get_mod($id);
