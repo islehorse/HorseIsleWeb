@@ -17,7 +17,9 @@ $money = getUserMoney($dbname, $_SESSION['PLAYER_ID']);
 if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_GET['sign']))
 {
 	
-	$targetUser = $_GET['to'];
+	$targetUser = intval($_GET['to']);
+	$buyerId = intval($_SESSION['PLAYER_ID']);
+	
 	$subbed = getUserSubbed($dbname, $targetUser);
 	$subbedUntil = getUserSubTimeRemaining($dbname, $targetUser);
 	$moneyTarget = getUserMoney($dbname, $targetUser);
@@ -31,7 +33,7 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		$msg = $_GET['itm'].$_GET["qnt"].$_GET["to"].$_GET["ret"].$_SESSION['USERNAME'].$_SESSION['PLAYER_ID'];
 		$expectedSignature = GenHmacMessage($msg, "PPEMU");
 		$gotHmacSignature = $_GET['sign'];
-		
+		$quantity = 1;
 		if(!hash_equals($gotHmacSignature,$expectedSignature)){
 			include("header.php");
 			echo("Invalid Signature. Are you trying to scam people?");
@@ -42,7 +44,7 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		$itm = $_GET["itm"];		
 		if(strpos($itm, "One Month Horse Isle Membership") === 0){
 			$amount = 5; // NO CHEATING!
-			$cost = $amount*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$EXHANGE_RATE;
 			if($money >= $cost)
 			{
 				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
@@ -62,7 +64,7 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		}
 		else if(strpos($itm, "Full Year Horse Isle Membership") === 0){
 			$amount = 40; // NO CHEATING!
-			$cost = $amount*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$EXHANGE_RATE;
 			if($money >= $cost)
 			{
 				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
@@ -85,7 +87,7 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		else if(strpos($itm, "100k Horse Isle Money") === 0){ // Why thou?
 			$amount = 1; // NO CHEATING!
 			$quantity = intval($_GET["qnt"]);
-			$cost = ($amount*$EXHANGE_RATE)*$quantity;
+			$cost = ($amount*$quantity)*$EXHANGE_RATE;
 			if($money >= $cost)
 			{
 				$amountGained = (100000 * $quantity);
@@ -105,8 +107,11 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 					$amountGained = 31250000;
 
 				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
-				$money-=$cost;
-				setUserMoney($dbname, $targetUser, $moneyTarget+=$amountGained);					
+				$money -= $cost;
+				if($targetUser == $buyerId)
+					$moneyTarget -= $cost;
+				setUserMoney($dbname, $targetUser, $moneyTarget+=$amountGained);	
+				
 				header("Location: ".$_GET["ret"]);
 				
 			}
@@ -122,7 +127,7 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		}
 		else if(strpos($itm, "Pawneer Order") === 0){
 			$amount = 8; // NO CHEATING!
-			$cost = $amount*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$EXHANGE_RATE;
 			if($money >= $cost)
 			{
 				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
@@ -143,7 +148,7 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		}
 		else if(strpos($itm, "Five Pawneer Order") === 0){
 			$amount = 30; // NO CHEATING!
-			$cost = $amount*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$EXHANGE_RATE;
 			if($money >= $cost)
 			{
 				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
@@ -216,19 +221,22 @@ include("header.php");
     <td><?php echo(htmlspecialchars((string)$quantity)); ?></td>
     <td><?php echo(htmlspecialchars($_POST['item_number'])) ?></td>
 	<td><?php
+			$amount = $_POST['amount'];
+			$priceUSD = ($amount*$quantity);
 			if($hasIntl)					
-				$cost = numfmt_format($fmt, intval(htmlspecialchars($_POST['amount']*$quantity)));
+				$cost = numfmt_format($fmt, intval(htmlspecialchars($priceUSD)));
 			else
-				$cost = $_POST['amount']*$quantity;
+				$cost = htmlspecialchars($priceUSD);
 
 
 			echo('$'.$cost);
 		?></td>
 	<td><?php 
+			$priceHI = ($amount*$quantity) * $EXHANGE_RATE;
 			if($hasIntl)					
-				$cost = numfmt_format($fmt, intval(htmlspecialchars((($_POST['amount']) * $EXHANGE_RATE)*$quantity)));
+				$cost = numfmt_format($fmt, intval(htmlspecialchars($priceHI)));
 			else
-				$cost = (($_POST['amount']) * $EXHANGE_RATE)*$quantity;
+				$cost = htmlspecialchars($priceHI);
 
 
 			echo('$'.$cost);
