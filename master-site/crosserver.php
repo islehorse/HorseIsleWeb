@@ -302,8 +302,8 @@ function createAccountOnServer(string $database)
 	$id = intval($_SESSION['PLAYER_ID']);
 	$username = $_SESSION['USERNAME'];
 	$sex = $_SESSION['SEX'];
-	$admin = ($_SESSION['ADMIN'] ? "YES" : "NO");
-	$mod = ($_SESSION['MOD'] ? "YES" : "NO");
+	$admin = $_SESSION['ADMIN'];
+	$mod = $_SESSION['MOD'];
 	$passhash = $_SESSION['PASSWORD_HASH'];
 	$salt = $_SESSION['SALT'];
 

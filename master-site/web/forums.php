@@ -35,7 +35,8 @@ include("header.php");
 		
 		if(!isset($_POST['VIEWID'])){
 			$thread = create_fourm_thread($subject, $forum);
-			create_fourm_reply($thread, $_SESSION['USERNAME'], $text, $forum, $_SESSION['ADMIN']);
+			
+			create_fourm_reply($thread, $_SESSION['USERNAME'], $text, $forum, $_SESSION['ADMIN'] == 'YES');
 		}
 		else
 		{
@@ -46,7 +47,7 @@ include("header.php");
 				goto ex;
 			}
 			
-			create_fourm_reply($threadId, $_SESSION['USERNAME'], $text, $forum, $_SESSION['ADMIN']);
+			create_fourm_reply($threadId, $_SESSION['USERNAME'], $text, $forum, $_SESSION['ADMIN'] == 'YES');
 		}
 	}
 	

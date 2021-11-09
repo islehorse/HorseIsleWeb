@@ -47,10 +47,14 @@ if(!is_logged_in() && isset($_GET["SLID"], $_GET["C"]))
 		$_SESSION['PLAYER_ID'] = $id;
 		$_SESSION['USERNAME'] = get_username($id);
 		$_SESSION['SEX'] = get_sex($id);
-		$_SESSION['ADMIN'] = get_admin($id);
-		$_SESSION['MOD'] = get_mod($id);
+		$_SESSION['ADMIN'] = get_admin($id) ? "YES" : "NO";
+		$_SESSION['MOD'] =  get_mod($id) ? "YES" : "NO";
 		$_SESSION['PASSWORD_HASH'] = get_password_hash($id);
 		$_SESSION['SALT'] = get_salt($id);
+
+		if($_SESSION['ADMIN'] == 'YES')
+			$_SESSION['MOD'] = 'YES';
+
 	}
 	else
 	{
