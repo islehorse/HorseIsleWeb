@@ -18,8 +18,8 @@ if(isset($_POST["USER"], $_POST["PASS"]))
 		$_SESSION['PLAYER_ID'] = $id;
 		$_SESSION['USERNAME'] = get_username($id);
 		$_SESSION['SEX'] = get_sex($id);
-		$_SESSION['ADMIN'] = get_admin($id);
-		$_SESSION['MOD'] = get_mod($id);
+		$_SESSION['ADMIN'] = get_admin($id) ? "YES" : "NO";
+		$_SESSION['MOD'] = get_mod($id) ? "YES" : "NO";
 		$_SESSION['PASSWORD_HASH'] = get_password_hash($id);
 		$_SESSION['SALT'] = get_salt($id);
 		
