@@ -81,9 +81,6 @@ if($moveToFront !== null){
 	array_unshift($server_list, $moveToFront);
 }
 
-?>
-<?php #<TABLE WIDTH=80% BGCOLOR=FFAABB BORDER=0 CELLPADDING=4 CELLSPACING=0><TR><TD class=newslist><B>[June 23, 2020 Latest Horse Isle News] Horse Isle 1 Compromise:</B><BR>Unfortunately, some troublemakers made a mess of HI1.<BR>We have reverted to a backup from 4am PST and taken some precautions. So, anything you "did" this morning was reverted.<br>We have also given all subs +12hrs to cover the down time.<br><br>Because passwords for accounts were likely compromised, we setup a system to verify and unlock for players' protection. When you try to login you will be prompted to reset your password.  We can automatically unlock most players' accounts, but some will require manual support via email.  Just follow the directions and please be patient with us.<br><br>Sorry about the trouble.  HI1 was never designed to survive so long into this new mean digital world. ;)<br><br>P.S.  The XSS alert was a simple javascript alert, just meaningless and harmless.<br><br>Thanks!<BR></TD></TR></TABLE> ?>
-<?php
 if(!userExistAny($player_id))
 	echo('<BR><B>We have a <A HREF=//'.$_SERVER['HTTP_HOST'].'/beginnerguide/>Beginner Guide</A> online to help new players learn how to play.</B><BR>');
 ?><BR><B><FONT SIZE=+1>Horse Isle Server List</FONT></B><BR>Each server is completely independent and has identical game content. Money/horses/subscriptions are all tied to a particular server. 
@@ -150,7 +147,7 @@ for($i = 0; $i < count($server_list); $i++)
 		$lastOn = $difference/86400;
 
 
-		echo('<BR>Quest Points: '.$questPoints.'.pts<BR>');
+		echo('<BR>Quest Points: '.$questPoints.' pts<BR>');
 		echo('Times Online: '.$totalLogins.'<BR>');
 		echo('Last On: '.number_format((float)$lastOn, 2, '.', '').' days ago<BR>');
 		echo('</TD>');
