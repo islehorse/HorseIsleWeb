@@ -94,11 +94,22 @@ function GenHmacMessage(string $data, string $channel, bool $restricted=true)
 }
 
 function send_activation_email(string $email, string $username, string $password){
+	include('config.php');
+
 	$hmac = GenHmacMessage($username, "UserActivation", false);
-	$hmacKey = base64_encode(hex2bin($hmac));
+	$hmacKey = base64_url_encode(hex2bin($hmac));
 	$activateUrl = get_protocol().get_host()."/web/newuser.php?U=".htmlspecialchars($username, ENT_QUOTES)."&AC=".htmlspecialchars($hmacKey, ENT_QUOTES);
 	$body = "<B>Welcome New Horse Isle Member!</B><BR><BR>\r\nTo Activate your account, Click the following link,  or Copy-Paste/Type it in your browser.<BR><HR>\r\n<A HREF='".$activateUrl."'>\r\n".$activateUrl."</A><BR>\r\n or <BR>\r\n( ".$activateUrl." )\r\n<BR><HR>We hope you enjoy the game! Be sure you have written down your Username: ".htmlspecialchars($username, ENT_QUOTES)." and Password: ".htmlspecialchars($password, ENT_QUOTES)." someplace safe!<BR>\r\nNEVER give your password out to ANYONE, even someone claiming to work for Horse Isle.<BR>";
-	mail($email, "Horse Isle Account Verification", $body);	
+	
+	$headers  = 'MIME-Version: 1.0' . "\r\n";
+	$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
+	$headers .= 'From: '.$from_email."\r\n";
+    $headers .= 'Reply-To: '.$from_email."\r\n";
+    $headers .= 'X-Mailer: PHP/' . phpversion();
+	
+	$subject = "Horse Isle Account Verification";
+	
+	mail($email, $subject, $body, $headers);	
 }
 
 

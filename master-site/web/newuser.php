@@ -10,6 +10,18 @@ if($atype > 2 || $atype < 1)
 
 $problems = [];
 
+if(isset( $_GET["U"], $_GET["AC"] )){
+	$verify_username = $GET["U"];
+	$verify_token = $GET["AC"];
+	
+	$hmac = GenHmacMessage($verify_username, "UserActivation", false);
+	$hmac_hash = bin2hex(base64_url_decode($hmac));
+	
+	if(hash_equals($hmac_hash, $verify_token)){
+		// TODO: Activate account
+	}
+}
+
 if(isset( $_POST['user'],$_POST['pass1'],$_POST['pass2'],$_POST['sex'],$_POST['email'],$_POST['age'],$_POST['passreqq'],$_POST['passreqa'] ,$_POST['A']))
 {
 	if(isset($_POST["cbr"]))
