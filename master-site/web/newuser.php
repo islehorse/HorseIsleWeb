@@ -127,11 +127,18 @@ if(isset( $_POST['user'],$_POST['pass1'],$_POST['pass2'],$_POST['sex'],$_POST['e
 
 	if(count($problems) <= 0)
 	{
-		$stmt = $connect->prepare("INSERT INTO Users VALUES(?,?,?,?,?,?,?,?,?,?,'NO','NO')"); 
-		$stmt->bind_param("isssssisss", $user_id, $username, $email, $country, $reset_question, $answer_hash, $age, $password_hash, $hex_salt, $gender);
+		$activated = "NO";
+		if(!$email_activation){
+			$activated = "YES";
+		}
+
+		$stmt = $connect->prepare("INSERT INTO Users VALUES(?,?,?,?,?,?,?,?,?,?,'NO','NO',?)"); 
+		$stmt->bind_param("isssssissss", $user_id, $username, $email, $country, $reset_question, $answer_hash, $age, $password_hash, $hex_salt, $gender, $activated);
 		$stmt->execute();
 		
-		echo('<TABLE cellpadding=10><TR><TD><B>Your account has been added!</B><BR>Look for the email from support@horseisle.com with your activation code!<BR>You cannot play until you CLICK the link with your code in the email.<BR>  Be sure to check your Spam email box in case it goes there. If you do not get the email soon, feel free to log in with your username and password to re-send the Activation Code to the same or a different email address.<BR><BR><A HREF=/>Go Back to Main Page</A><BR><BR></TD></TR></TABLE>');
+		send_activation_email($email, $username, $password);
+		
+		echo('<TABLE cellpadding=10><TR><TD><B>Your account has been added!</B><BR>Look for the email from '.$from_email.' with your activation code!<BR>You cannot play until you CLICK the link with your code in the email.<BR>  Be sure to check your Spam email box in case it goes there. If you do not get the email soon, feel free to log in with your username and password to re-send the Activation Code to the same or a different email address.<BR><BR><A HREF=/>Go Back to Main Page</A><BR><BR></TD></TR></TABLE>');
 		include("footer.php");
 		exit();
 	}
