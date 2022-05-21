@@ -1,18 +1,5 @@
 <?php
 
-function GenHmacMessage(string $data, string $channel)
-{
-	include('config.php');
-	if($hmac_secret === "!!NOTSET!!"){
-		echo("<script>alert('Please set HMAC_SECRET !')</script>");
-		echo("<h1>Set \$hmac_secret in config.php!</h1>");
-		exit();
-	}
-	$secret = $hmac_secret.$channel.$_SERVER['REMOTE_ADDR'].date('mdy');
-	$hmac = hash_hmac('sha256', $data, $secret);
-	return $hmac;
-}
-
 
 function getPlayerList($database)
 {
