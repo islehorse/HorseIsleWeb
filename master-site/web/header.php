@@ -6,7 +6,7 @@ if(!function_exists('is_logged_in'))
 	include('../common.php');
 
 
-$host = $_SERVER['HTTP_HOST'];
+
 
 ?>
 <HEAD>
