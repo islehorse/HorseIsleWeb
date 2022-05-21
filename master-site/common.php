@@ -1,4 +1,5 @@
 <?php
+$host = $_SERVER['HTTP_HOST'];
 
 function hash_salt(string $input, string $salt)
 {
@@ -55,6 +56,49 @@ function get_username(string $id)
 	$result = $stmt->get_result();
 	$usetname = $result->fetch_row()[0];
 	return $usetname;
+}
+
+function get_protocol(){
+	if(!isset($_SERVER['HTTPS'])){
+		return "http://";
+	}
+	
+	if($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1){
+		return "https://";
+	}
+	else{
+		return "http://";
+	}
+}
+
+function get_host(){
+	return $_SERVER['HTTP_HOST'];
+}
+
+function GenHmacMessage(string $data, string $channel, bool $restricted=true)
+{
+	include('config.php');
+	if($hmac_secret === "!!NOTSET!!") {
+		echo("<script>alert('Please set HMAC_SECRET !')</script>");
+		echo("<h1>Set \$hmac_secret in config.php!</h1>");
+		exit();
+	}
+	
+	$secret = $hmac_secret.$channel;
+	
+	if($restricted)
+		$secret .= $_SERVER['REMOTE_ADDR'].date('mdy');
+	
+	$hmac = hash_hmac('sha256', $data, $secret);
+	return $hmac;
+}
+
+function send_activation_email(string $email, string $username, string $password){
+	$hmac = GenHmacMessage($username, "UserActivation", false);
+	$hmacKey = base64_encode(hex2bin($hmac));
+	$activateUrl = get_protocol().get_host()."/web/newuser.php?U=".htmlspecialchars($username, ENT_QUOTES)."&AC=".htmlspecialchars($hmacKey, ENT_QUOTES);
+	$body = "<B>Welcome New Horse Isle Member!</B><BR><BR>\r\nTo Activate your account, Click the following link,  or Copy-Paste/Type it in your browser.<BR><HR>\r\n<A HREF='".$activateUrl."'>\r\n".$activateUrl."</A><BR>\r\n or <BR>\r\n( ".$activateUrl." )\r\n<BR><HR>We hope you enjoy the game! Be sure you have written down your Username: ".htmlspecialchars($username, ENT_QUOTES)." and Password: ".htmlspecialchars($password, ENT_QUOTES)." someplace safe!<BR>\r\nNEVER give your password out to ANYONE, even someone claiming to work for Horse Isle.<BR>";
+	mail($email, "Horse Isle Account Verification", $body);	
 }
 
 
@@ -478,7 +522,7 @@ function populate_db()
 {
 	include('config.php');
 	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
-	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS Users(Id INT, Username TEXT(16),Email TEXT(128),Country TEXT(128),SecurityQuestion Text(128),SecurityAnswerHash TEXT(128),Age INT,PassHash TEXT(128), Salt TEXT(128),Gender TEXT(16), Admin TEXT(3), Moderator TEXT(3))");
+	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS Users(Id INT, Username TEXT(16),Email TEXT(128),Country TEXT(128),SecurityQuestion Text(128),SecurityAnswerHash TEXT(128),Age INT,PassHash TEXT(128), Salt TEXT(128),Gender TEXT(16), Admin TEXT(3), Moderator TEXT(3), EmailActivated TEXT(3))");
 	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS LastOn(Id INT, ServerId TEXT(1028))");
 	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS FourmThread(ThreadId INT, Title TEXT(100), Fourm TEXT(10), UpdateTime INT, Locked TEXT(3))");
 	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS FourmReply(ReplyId INT, ThreadId INT, CreatedBy TEXT(1028), Contents TEXT(65565), Fourm TEXT(10), CreationTime INT, MadeByAdmin TEXT(3))");
