@@ -3,8 +3,35 @@ session_start();
 include("servers.php");
 include("common.php");
 include("crosserver.php");
+include("config.php");
 
+$eml_err = NULL;
 
+if(isset($_POST["RESENDEMAIL"], $_POST["USER"], $_POST["PASS"])){
+	$username = $_POST["USER"];
+	$password = $_POST["PASS"];
+	if(!user_exists($username))
+		goto improper_auth;
+	
+	$id = get_userid($username);
+	//TODO: $eml_err = "Email account has been banned.";
+	if(check_password($id, $password)){
+		if(!preg_match('/^[A-Za-z0-9_.+-]*\@[A-Za-z0-9_.+-]*\.[A-Za-z0-9_.+-]{1,4}$/',$_POST["RESENDEMAIL"])){
+			$eml_err = "Email does not appear to be a valid format.";
+			
+			goto email_error;	
+		}
+		send_activation_email($_POST["RESENDEMAIL"], $username, $password);
+		include("web/header.php");
+		echo("<TABLE cellpadding=10><TR><TD><B>Your activation email has been re-sent to ".htmlspecialchars($_POST["RESENDEMAIL"])."</B><BR>Look for the email from ".htmlspecialchars($from_email)." with your activation code!<BR>You cannot login until you CLICK the link with your code in the email.<BR>  Be sure to check your Spam email box in case it goes there.<BR><BR><A HREF=/>Go Back to Main Page</A><BR><BR></TD></TR></TABLE>");
+		include("web/footer.php");
+		exit();
+	}
+	
+improper_auth:
+	echo("Improper Account info.");
+	exit();
+}
 if(isset($_POST["USER"], $_POST["PASS"]))
 {
 	$username = $_POST["USER"];
@@ -14,15 +41,28 @@ if(isset($_POST["USER"], $_POST["PASS"]))
 	$id = get_userid($username);
 	if(check_password($id, $password))
 	{
+		
+		if($email_activation === true) {
+			if(!get_email_activation_status($id)){
+email_error:
+				include("web/header.php");
+				if($eml_err !== NULL){
+					echo("<FONT COLOR=660000><B>Errors in Sending Activation Email:</B><BR>".htmlspecialchars($eml_err, ENT_QUOTES)."<BR></FONT><HR>");					
+				}
+				echo('<B>You still need to click the Activation link that was emailed to you at '.htmlspecialchars(get_email($id), ENT_QUOTES).'.</B><BR>Please check your spam mailbox just in case. The email will be from '.htmlspecialchars($from_email, ENT_QUOTES).'.<BR>If you would like to resend the authentication email somewhere else: <FORM METHOD=POST>EMAIL:<INPUT TYPE=text size=30 NAME=RESENDEMAIL><INPUT TYPE=HIDDEN NAME=USER VALUE='.htmlspecialchars(get_username($id), ENT_QUOTES).'><INPUT TYPE=HIDDEN NAME=PASS VALUE='.htmlspecialchars($password, ENT_QUOTES).' ><INPUT TYPE=SUBMIT VALUE=RESEND>');
+				include('web/footer.php');
+				exit();
+			}
+		}
 		$_SESSION['LOGGED_IN'] = "YES";
 		$_SESSION['PLAYER_ID'] = $id;
+		$_SESSION["EMAIL"] = get_email($id);
 		$_SESSION['USERNAME'] = get_username($id);
 		$_SESSION['SEX'] = get_sex($id);
 		$_SESSION['ADMIN'] = get_admin($id) ? "YES" : "NO";
 		$_SESSION['MOD'] = get_mod($id) ? "YES" : "NO";
 		$_SESSION['PASSWORD_HASH'] = get_password_hash($id);
 		$_SESSION['SALT'] = get_salt($id);
-		
 		if($_SESSION['ADMIN'] == 'YES')
 			$_SESSION['MOD'] = 'YES';
 	}
@@ -36,6 +76,7 @@ auth_failed:
 	}
 }
 
+
 if(!is_logged_in())
 {
 	include("web/header.php");
@@ -45,6 +86,7 @@ if(!is_logged_in())
 	include("web/footer.php");
 	exit();
 }
+
 
 if(isset($_GET['CONNECT']))
 {

@@ -388,6 +388,18 @@ function get_fourm_threads($fourm)
 	return $threads;
 }
 
+function get_email(int $userid)
+{
+	include('config.php');
+	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$stmt = $connect->prepare("SELECT Email FROM Users WHERE Id=?"); 
+	$stmt->bind_param("i", $userid);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	$email = $result->fetch_row()[0];
+	return $email;
+}
+
 function get_userid(string $username)
 {
 	include('config.php');
