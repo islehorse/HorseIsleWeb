@@ -11,18 +11,66 @@ if($atype > 2 || $atype < 1)
 $problems = [];
 
 if(isset( $_GET["U"], $_GET["AC"] )){
-	$verify_username = $GET["U"];
-	$verify_token = $GET["AC"];
+	$verify_username = $_GET["U"];
+	$verify_token = $_GET["AC"];
 	
 	$hmac = GenHmacMessage($verify_username, "UserActivation", false);
-	$hmac_hash = bin2hex(base64_url_decode($hmac));
+	$hmac_hash = bin2hex(base64_url_decode($verify_token));
 	
-	if(hash_equals($hmac_hash, $verify_token)){
-		// TODO: Activate account
+	if(strlen($hmac_hash) != 64){
+		print_r(strlen($hmac_hash));
+		echo("<B>INCOMPLETE Activation Code!</B><BR>");
+		include("footer.php");
+		exit();		
 	}
-}
+	else{
+		print("<BR> Attempting to Activate your account...<BR>");
+		if(hash_equals($hmac_hash, $hmac)) {
+			if(user_exists($verify_username)) {
+				$user_id = get_userid($verify_username);
+				if(!get_email_activation_status($user_id)) {
+					$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+					$stmt = $connect->prepare("UPDATE Users SET EmailActivated='YES' WHERE Id=?"); 
+					$stmt->bind_param("i", $user_id);
+					$stmt->execute();
+					echo(' <B><FONT COLOR=GREEN>COMPLETED: Successfully Enabled your Account.</B>  You may Log in with your name and password at the upper right.</FONT><BR><BR>    <!-- Google Code for signup Conversion Page -->
+    <script language="JavaScript" type="text/javascript">
+    <!--
+    var google_conversion_id = 1059728575;
+    var google_conversion_language = "en_US";
+    var google_conversion_format = "2";
+    var google_conversion_color = "EDE5B4";
+    if (1) {
+      var google_conversion_value = 1;
+    }
+    var google_conversion_label = "signup";
+    //-->
+    </script>
+    <script language="JavaScript" src="http://www.googleadservices.com/pagead/conversion.js">
+    </script>
+    <noscript>
+    <img height=1 width=1 border=0 src="http://www.googleadservices.com/pagead/conversion/1059728575/imp.gif?value=1&label=signup&script=0">
+    </noscript>
 
-if(isset( $_POST['user'],$_POST['pass1'],$_POST['pass2'],$_POST['sex'],$_POST['email'],$_POST['age'],$_POST['passreqq'],$_POST['passreqa'] ,$_POST['A']))
+    ');
+					include("footer.php");
+					exit();
+
+				}
+				else{
+					echo("<B><FONT COLOR=RED>ACCOUNT ALREADY ACTIVATED:</B> Your account has already been activated. Please login with your username and password.</B></FONT><BR><BR><TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=100%>");
+					include("footer.php");
+					exit();
+				}
+			}
+		}
+		echo("<B><FONT COLOR=RED>FAILED:</B> Invalid User/Code Combination. After 50 hours unactivated accounts are removed from the system. So if it's been over 2 days,  you will have to try signing up again.</B></FONT><BR><BR>");
+		include("footer.php");
+		exit();
+	}
+
+}
+else if(isset( $_POST['user'],$_POST['pass1'],$_POST['pass2'],$_POST['sex'],$_POST['email'],$_POST['age'],$_POST['passreqq'],$_POST['passreqa'] ,$_POST['A']))
 {
 	if(isset($_POST["cbr"]))
 	{
