@@ -1,6 +1,4 @@
 <?php
-
-
 function getPlayerList($database)
 {
 	include('config.php');

@@ -487,6 +487,21 @@ function count_LastOn(int $userId)
 	return intval($v[0]);
 }
 
+function get_email_activation_status(int $userId)
+{
+
+
+	include('config.php');
+	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$stmt = $connect->prepare("SELECT EmailActivated FROM Users WHERE Id=?");
+	$stmt->bind_param("i", $userId);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	$v = $result->fetch_row();
+	
+    
+	return $v[0] === "YES";
+}
 
 function get_LastOn(int $userId)
 {
