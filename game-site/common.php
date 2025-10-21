@@ -34,21 +34,21 @@ function handle_cfg_line(array &$cfg, string $line) {
 }
 function gen_servers(string $path) {
 	if(!file_exists($path)) {
-		$file_data = file_get_contents("base/base_servers.json");
+		$file_data = file_get_contents("web/base_servers.json");
 		file_put_contents($path, $file_data);
 	}
 }
 
 function gen_game_cfg(string $path) {
 	if(!file_exists($path)) {
-		$file_data = file_get_contents("base/base_game.cfg");
+		$file_data = file_get_contents("web/base_game.cfg");
 		file_put_contents($path, $file_data);		
 	}
 }
 
 function gen_cfg(string $path) {
 	if(!file_exists($path)) {
-		$file_data = file_get_contents("base/base_web.cfg");
+		$file_data = file_get_contents("web/base_web.cfg");
 		file_put_contents($path, $file_data);		
 	}
 }
@@ -301,9 +301,10 @@ function create_fourm_thread(string $title, string $fourm)
 
 function set_thread_update(int $thread_id)
 {
+	$time = time();
 	$connect = sql_connect();
 	$stmt = $connect->prepare("UPDATE FourmThread SET UpdateTime=? WHERE ThreadId=?");
-	$stmt->bind_param("ii", time(), $thread_id);
+	$stmt->bind_param("ii", $time, $thread_id);
 	$stmt->execute();
 }
 

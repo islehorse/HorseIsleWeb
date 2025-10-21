@@ -8,6 +8,7 @@ if(!is_logged_in()){
 	include("footer.php");
 	exit();
 }
+
 ?>
 
 <CENTER><TABLE WIDTH=90% BORDER=0><TR><TD VALIGN=top>

@@ -1,9 +1,9 @@
 <?php
-	include("../servers.php");
 	include("../common.php");
 	include("../crosserver.php");
 	include("header.php");
 	$cfg = get_cfg();
+	$server_list = get_servers();
 	
 	$host = 'http://'.htmlspecialchars($_SERVER['HTTP_HOST'], ENT_QUOTES);
 	
@@ -218,7 +218,6 @@ Select: <SELECT NAME=quantity>
 
 
 ');
-				
 			}
 		}
 		
