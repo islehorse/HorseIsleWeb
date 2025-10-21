@@ -1,8 +1,10 @@
 <?php
 session_start();
-include("web/common.php");
-include("web/crosserver.php");
-include("config.php");
+include("common.php");
+include("crosserver.php");
+
+$cfg = get_cfg();
+$gcfg = get_cfg_game();
 
 if(isset($_POST["USER"], $_POST["PASS"]))
 {
@@ -41,7 +43,7 @@ if(!is_logged_in() && isset($_GET["SLID"], $_GET["C"]))
 	$hmac = GenHmacMessage((string)$id, "CrossSiteLogin");
 	$hmacSent = bin2hex(base64_url_decode($code));
 	
-	if(hash_equals($hmacSent,$hmac) && userid_exists($dbname, $id))
+	if(hash_equals($hmacSent,$hmac) && userid_exists($gcfg["DB_NAME"], $id))
 	{		
 		$_SESSION['LOGGED_IN'] = "YES";
 		$_SESSION['PLAYER_ID'] = $id;
@@ -75,19 +77,19 @@ if(!is_logged_in())
 
 
 // Get account data
-$newUser = !getUserExistInExt($dbname, $_SESSION['PLAYER_ID']);
+$newUser = !getUserExistInExt($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
 
 if(!$newUser){
 
-	$money = getUserMoney($dbname, $_SESSION['PLAYER_ID']);
-	$bankMoney = getUserBankMoney($dbname, $_SESSION['PLAYER_ID']);
-	$loginDate = getUserLoginDate($dbname, $_SESSION['PLAYER_ID']);
-	$questPoints = getUserQuestPoints($dbname, $_SESSION['PLAYER_ID']);
-	$totalLogins = getUserTotalLogins($dbname, $_SESSION['PLAYER_ID']);
+	$money = getUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$bankMoney = getUserBankMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$loginDate = getUserLoginDate($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$questPoints = getUserQuestPoints($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$totalLogins = getUserTotalLogins($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
 
-	$subbed = getUserSubbed($dbname, $_SESSION['PLAYER_ID']);
-	$subTime = getUserSubTimeRemaining($dbname, $_SESSION['PLAYER_ID']);
-	$playtime = getUserPlaytime($dbname, $_SESSION['PLAYER_ID']);
+	$subbed = getUserSubbed($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$subTime = getUserSubTimeRemaining($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$playtime = getUserPlaytime($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
 }
 else
 {
@@ -100,7 +102,7 @@ else
 	$subTime = 0;
 	$playtime = 0;
 }
-if($all_users_subbed)
+if($gcfg["ALL_USERS_SUBSCRIBED"])
 	$subbed = true;
 
 $hasIntl = function_exists('numfmt_create');
@@ -220,7 +222,7 @@ h+=60;//h += 96;
 
 <CENTER><TABLE WIDTH=500><TR><TD class=forumlist>
 
-<FONT SIZE=+1><?php echo(strtoupper(htmlspecialchars($_SESSION['USERNAME']))); ?>'S <?php echo(strtoupper($server_id)); ?> SUBSCRIPTION STATUS:<BR></FONT><FONT SIZE=+2><?php 
+<FONT SIZE=+1><?php echo(strtoupper(htmlspecialchars($_SESSION['USERNAME']))); ?>'S <?php echo(strtoupper($gcfg["SERVER_ID"])); ?> SUBSCRIPTION STATUS:<BR></FONT><FONT SIZE=+2><?php 
 	if($subbed)
 	{ 
 		echo('<FONT COLOR=GREEN>ACTIVE</FONT>');
@@ -229,7 +231,7 @@ h+=60;//h += 96;
 		$daysRemain = floor($difference/86400);
 		$daysStr = (string)$daysRemain;
 		
-		if($all_users_subbed)
+		if($gcfg["ALL_USERS_SUBSCRIBED"])
 			$daysStr = "∞";
 		
 		echo('</FONT><BR>('.$daysStr.' days remain in your subscription)</FONT> ');
@@ -242,7 +244,7 @@ h+=60;//h += 96;
 </TD></TR><TR><TD class=forumlist>
 <TABLE WIDTH=100%>
 <TR><TD><B>BUY 1 Month Membership <FONT COLOR=GREEN>$5.00</FONT>usd</B> <I><FONT SIZE=-1>(adds 31 days membership time to the account that you are currently logged in with.) Non-refundable.</FONT></I></TD><TD>
-<form action="<?php echo($pp_uri); ?>" method="post">
+<form action="<?php echo($cfg["PP_URI"]); ?>" method="post">
 <input type="hidden" name="cmd" value="_xclick">
 <input type="hidden" name="business" value="paypal@horseisle.com">
 <input type="hidden" name="undefined_quantity" value="1">
@@ -268,7 +270,7 @@ h+=60;//h += 96;
 <TR><TD class=forumlist>
 <TABLE WIDTH=100%><TR>
 <TD><B>BUY Full Year Membership <FONT COLOR=GREEN>$40.00</FONT>usd</B> <I><FONT SIZE=-1>(adds 366 days membership time to the account you are logged in with. saves $20.00 off monthly subscription) Non-refundable.</FONT></I></TD><TD>
-<form action="<?php echo($pp_uri); ?>" method="post">
+<form action="<?php echo($cfg["PP_URI"]); ?>" method="post">
 <input type="hidden" name="cmd" value="_xclick">
 <input type="hidden" name="business" value="paypal@horseisle.com">
 <input type="hidden" name="undefined_quantity" value="1">
@@ -323,7 +325,7 @@ h+=60;//h += 96;
 
 
 <TABLE WIDTH=100%><TR>
-<form action="<?php echo($pp_uri); ?>" method="post">
+<form action="<?php echo($cfg["PP_URI"]); ?>" method="post">
 <TD><B>BUY $100,000 Horse Isle Currency per <FONT COLOR=GREEN>$1.00</FONT>usd</B><BR>
 Select: <SELECT NAME=quantity>
 <!-<OPTION VALUE=1>$10,000 Horse Isle for $1.00 USD->
@@ -361,7 +363,7 @@ Select: <SELECT NAME=quantity>
 <TABLE WIDTH=100%>
 <TR><TD>
 <B>BUY Pawneer Order <FONT COLOR=GREEN>$8.00</FONT>usd</B> <I><FONT SIZE=-1>(allows you to order a custom breed/color/gender horse on server from Pawneer. This is not required, you can trade other players to get the breed you desire also.) Non-refundable.</FONT></I></TD><TD>
-<form action="<?php echo($pp_uri); ?>" method="post">
+<form action="<?php echo($cfg["PP_URI"]); ?>" method="post">
 <input type="hidden" name="cmd" value="_xclick">
 <input type="hidden" name="business" value="paypal@horseisle.com">
 <input type="hidden" name="undefined_quantity" value="1">
@@ -386,7 +388,7 @@ Select: <SELECT NAME=quantity>
 <TABLE WIDTH=100%>
 <TR><TD>
 <B>BUY 5 Pawneer Orders <FONT COLOR=GREEN>$30.00</FONT>usd</B> <I><FONT SIZE=-1>(save $10.00 - allows you to order 5 custom horses from Pawneer) Non-refundable.</FONT></I></TD><TD>
-<form action="<?php echo($pp_uri); ?>" method="post">
+<form action="<?php echo($cfg["PP_URI"]); ?>" method="post">
 <input type="hidden" name="cmd" value="_xclick">
 <input type="hidden" name="business" value="paypal@horseisle.com">
 <input type="hidden" name="undefined_quantity" value="1">
@@ -416,7 +418,7 @@ Select: <SELECT NAME=quantity>
 
 <TR><TD class=forumlist>
 <BR>Alternative Payment Methods: <A HREF=/web/checks.php>Check/Cash via postal mail</A>
-<BR><BR>Gift Payments: <A HREF=<?php echo($master_site); ?>/web/giftmembership.php>Pay for a different player</A>
+<BR><BR>Gift Payments: <A HREF=<?php echo($cfg["MAIN_DOMAIN"]); ?>/web/giftmembership.php>Pay for a different player</A>
 <BR><BR></TD></TR>
 
 

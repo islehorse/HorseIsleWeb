@@ -2,8 +2,7 @@
 
 function getPlayerList($database)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$onlineUsers = mysqli_query($connect, "SELECT * FROM OnlineUsers");
 	
 	$users_on = [];
@@ -19,8 +18,7 @@ function getPlayerList($database)
 
 function checkUserBuddy($database, $yourId, $friendsId)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT COUNT(1) FROM BuddyList WHERE (Id=? AND IdFriend=?) OR (Id=? AND IdFriend=?)");
 	$stmt->bind_param("iiii", $yourId, $friendsId, $friendsId, $yourId);
 	$stmt->execute();
@@ -31,26 +29,21 @@ function checkUserBuddy($database, $yourId, $friendsId)
 
 function getNoPlayersOnlineInServer($database)
 {
-	return 0;
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$onlineUsers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers");
 	return $onlineUsers->fetch_row()[0];
 }
 
 function getNoSubbedPlayersOnlineInServer($database)
 {
-	return 0;
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$onlineSubscribers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Subscribed = 'YES'");
 	return $onlineSubscribers->fetch_row()[0];
 }
 
 function getUserMoney($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT Money FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -62,8 +55,7 @@ function getUserMoney($database, $id)
 
 function setUserMoney($database, $id, $money)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("UPDATE UserExt SET Money=? WHERE Id=?");
 	$stmt->bind_param("ii", $money, $id);
 	$stmt->execute();
@@ -77,8 +69,7 @@ function setUserSubbed($database, $id, $subbed)
 	else
 		$subbedV = "NO";
 	
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("UPDATE UserExt SET Subscriber=? WHERE Id=?");
 	$stmt->bind_param("si", $subedV, $id);
 	$stmt->execute();
@@ -86,8 +77,7 @@ function setUserSubbed($database, $id, $subbed)
 
 function setUserSubbedUntil($database, $id, $subbedUntil)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("UPDATE UserExt SET SubscribedUntil=? WHERE Id=?");
 	$stmt->bind_param("ii", $subbedUntil, $id);
 	$stmt->execute();
@@ -95,8 +85,7 @@ function setUserSubbedUntil($database, $id, $subbedUntil)
 
 function getUserBankMoney($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT BankBalance FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -108,8 +97,7 @@ function getUserBankMoney($database, $id)
 
 function getUserLoginDate($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT LastLogin FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -121,8 +109,7 @@ function getUserLoginDate($database, $id)
 
 function getUserQuestPoints($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT QuestPoints FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -134,8 +121,7 @@ function getUserQuestPoints($database, $id)
 
 function getUserExistInExt($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT COUNT(*) FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -147,8 +133,7 @@ function getUserExistInExt($database, $id)
 
 function getUserTotalLogins($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT TotalLogins FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -160,8 +145,7 @@ function getUserTotalLogins($database, $id)
 
 function getUserPlaytime($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT FreeMinutes FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -174,8 +158,7 @@ function getUserPlaytime($database, $id)
 
 function getUserSubTimeRemaining($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT SubscribedUntil FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -188,8 +171,7 @@ function getUserSubTimeRemaining($database, $id)
 
 function addItemToPuchaseQueue($database, $playerId, $itemId, $itemCount)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("INSERT INTO ItemPurchaseQueue VALUES(?,?,?)");
 	$stmt->bind_param("iii", $playerId, $itemId, $itemCount);
 	$stmt->execute();
@@ -199,8 +181,7 @@ function addItemToPuchaseQueue($database, $playerId, $itemId, $itemCount)
 
 function getUserSubbed($database, $id)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT Subscriber FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -213,9 +194,7 @@ function getUserSubbed($database, $id)
 
 function isUserOnline($database, $id)
 {
-	return true;
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT COUNT(1) FROM OnlineUsers WHERE playerId=?");
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
@@ -228,31 +207,17 @@ function isUserOnline($database, $id)
 
 function getNoModPlayersOnlineInServer($database)
 {
-	return 0;
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$onlineModerators = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Moderator = 'YES' OR Admin='YES'");
 	$num = $onlineModerators->fetch_row()[0];
 	mysqli_close($connect);
 	return $num;
 }
 
-function getServerById(string $id)
-{
-	include('servers.php');
-	for($i = 0; $i < count($server_list); $i++)
-	{
-		if($server_list[$i]['id'] == $id)
-			return $server_list[$i];
-	}
-	return null;
-}
-
 
 function userid_exists(string $database, string $userid)
 {
-	$dbname = $database;
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("SELECT COUNT(1) FROM Users WHERE Id=?");
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
@@ -265,7 +230,6 @@ function userid_exists(string $database, string $userid)
 
 function createAccountOnServer(string $database)
 {
-	$dbname = $database;
 
 	$id = intval($_SESSION['PLAYER_ID']);
 	$username = $_SESSION['USERNAME'];
@@ -276,7 +240,7 @@ function createAccountOnServer(string $database)
 	$salt = $_SESSION['SALT'];
 
 
-	$connect = sql_connect();
+	$connect = sql_connect($database);
 	$stmt = $connect->prepare("INSERT INTO Users VALUES(?,?,?,?,?,?,?)"); 
 	$stmt->bind_param("issssss", $id, $username, $passhash, $salt, $sex, $admin, $mod);
 	$stmt->execute();
@@ -286,7 +250,7 @@ function createAccountOnServer(string $database)
 # Global Functions
 function getNoPlayersOnlineGlobal()
 {
-	include('servers.php');
+	$server_list = get_servers();
 	$playersOn = 0;
 	for($i = 0; $i < count($server_list); $i++)
 	{
@@ -297,7 +261,7 @@ function getNoPlayersOnlineGlobal()
 
 function userExistAny($playerId)
 {
-	include('servers.php');
+	$server_list = get_servers();
 	for($i = 0; $i < count($server_list); $i++)
 	{
 		if(userid_exists($server_list[$i]['database'], $playerId)){
@@ -310,7 +274,7 @@ function userExistAny($playerId)
 
 function getNoSubbedPlayersOnlineGlobal()
 {
-	include('servers.php');
+	$server_list = get_servers();
 	$playersOn = 0;
 	for($i = 0; $i < count($server_list); $i++)
 	{
@@ -321,7 +285,7 @@ function getNoSubbedPlayersOnlineGlobal()
 
 function getNoModPlayersOnlineGlobal()
 {
-	include('servers.php');
+	$server_list = get_servers();
 	$playersOn = 0;
 	for($i = 0; $i < count($server_list); $i++)
 	{

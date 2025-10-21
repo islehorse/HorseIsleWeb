@@ -1,8 +1,8 @@
 <?php
 session_start();
-include("config.php");
 include("crosserver.php");
 include("header.php");
+$gcfg = get_cfg_game();
 ?>
 <TABLE WIDTH=100% CELLPADDING=10><TR><TD>
 <FONT COLOR=880000 SIZE=+1><B>Alternative Payment Methods</B></FONT><BR>
@@ -26,7 +26,7 @@ Be sure to include a CLEAR note of what account this is for. Include your email 
 <UL><FONT COLOR=440044 SIZE=+0>
 Your USERNAME = <?php echo(htmlspecialchars($_SESSION['USERNAME'])); ?><B></B><BR>
 Your ACCOUNT ID = <?php echo(htmlspecialchars($_SESSION['PLAYER_ID'])); ?><B></B><BR>
-Your SERVER = <B><?php echo($server_id); ?></B> (make sure this is the one you play on)<BR>
+Your SERVER = <B><?php echo($gcfg["SERVER_ID"]); ?></B> (make sure this is the one you play on)<BR>
 
 </UL></FONT>
 <B>Finally, let us know what it is for:</B><BR>

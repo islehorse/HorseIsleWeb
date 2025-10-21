@@ -1,6 +1,7 @@
 <?php 
+include("common.php");
 session_start();
-include("config.php");
+$cfg = get_cfg();
 
 // Handle logout
 if(isset($_GET["LOGOUT"]))
@@ -20,7 +21,7 @@ include("web/header.php");
 <FONT FACE=Verdana,arial SIZE=-1>
 <BR>
 If you have an account on this server (<?php echo(strtoupper($_SERVER['HTTP_HOST']))?>) please login in at upper right.<BR>
- Otherwise click for <A href=http:<?php echo($master_site); ?>>Main Horse Isle 1 Site</A>.
+ Otherwise click for <A href=http:<?php echo($cfg["MAIN_DOMAIN"]); ?>>Main Horse Isle 1 Site</A>.
 <BR><BR>
 
 

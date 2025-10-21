@@ -1,8 +1,10 @@
 <?php
-		include("../servers.php");
+	include("../servers.php");
 	include("../common.php");
 	include("../crosserver.php");
 	include("header.php");
+	$cfg = get_cfg();
+	
 	$host = 'http://'.htmlspecialchars($_SERVER['HTTP_HOST'], ENT_QUOTES);
 	
 	if(isset($_POST['PLAYERNAME'], $_POST['SERVER'])){
@@ -61,8 +63,8 @@
 				}
 				
 				// put payment options here;
-				$pp_uri = str_replace('[GAMESITE]', $serverObj['site'], $pp_uri);
 				$gameServerDomain = parse_url($serverObj['site'], PHP_URL_HOST);
+				$pp_uri = $gameServerDomain . "/" . $cfg["PP_URI"];
 				echo('<HR>The following Payment Options are Available:<BR>
 <CENTER><TABLE WIDTH=500><TR><TD class=forumlist>
 

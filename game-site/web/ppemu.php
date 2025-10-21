@@ -1,9 +1,9 @@
 <?php
 
 session_start();
-include("../config.php");
-include("crosserver.php");
-include("common.php");
+include("../crosserver.php");
+include("../common.php");
+$gcfg = get_cfg_game();
 
 if(!is_logged_in()){
 	include("header.php");
@@ -12,7 +12,7 @@ if(!is_logged_in()){
 	exit();
 }
 
-$money = getUserMoney($dbname, $_SESSION['PLAYER_ID']);
+$money = getUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
 
 if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_GET['sign']))
 {
@@ -20,9 +20,9 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 	$targetUser = intval($_GET['to']);
 	$buyerId = intval($_SESSION['PLAYER_ID']);
 	
-	$subbed = getUserSubbed($dbname, $targetUser);
-	$subbedUntil = getUserSubTimeRemaining($dbname, $targetUser);
-	$moneyTarget = getUserMoney($dbname, $targetUser);
+	$subbed = getUserSubbed($gcfg["DB_NAME"], $targetUser);
+	$subbedUntil = getUserSubTimeRemaining($gcfg["DB_NAME"], $targetUser);
+	$moneyTarget = getUserMoney($gcfg["DB_NAME"], $targetUser);
 
 	if(!$subbed)
 		$subbedUntil = time();
@@ -44,12 +44,12 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		$itm = $_GET["itm"];		
 		if(strpos($itm, "One Month Horse Isle Membership") === 0){
 			$amount = 5; // NO CHEATING!
-			$cost = ($amount*$quantity)*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
-				setUserSubbed($dbname,$targetUser, true);
-				setUserSubbedUntil($dbname, $targetUser, $subbedUntil + 2678400);
+				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
+				setUserSubbed($gcfg["DB_NAME"],$targetUser, true);
+				setUserSubbedUntil($gcfg["DB_NAME"], $targetUser, $subbedUntil + 2678400);
 				
 				header("Location: ".$_GET["ret"]);
 			}
@@ -64,12 +64,12 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		}
 		else if(strpos($itm, "Full Year Horse Isle Membership") === 0){
 			$amount = 40; // NO CHEATING!
-			$cost = ($amount*$quantity)*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
-				setUserSubbed($dbname, $targetUser, true);
-				setUserSubbedUntil($dbname, $targetUser, $subbedUntil + 31622400);
+				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
+				setUserSubbed($gcfg["DB_NAME"], $targetUser, true);
+				setUserSubbedUntil($gcfg["DB_NAME"], $targetUser, $subbedUntil + 31622400);
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -87,7 +87,7 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		else if(strpos($itm, "100k Horse Isle Money") === 0){ // Why thou?
 			$amount = 1; // NO CHEATING!
 			$quantity = intval($_GET["qnt"]);
-			$cost = ($amount*$quantity)*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
 				$amountGained = (100000 * $quantity);
@@ -106,11 +106,11 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 				if($quantity == 250)
 					$amountGained = 31250000;
 
-				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
+				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
 				$money -= $cost;
 				if($targetUser == $buyerId)
 					$moneyTarget -= $cost;
-				setUserMoney($dbname, $targetUser, $moneyTarget+=$amountGained);	
+				setUserMoney($gcfg["DB_NAME"], $targetUser, $moneyTarget+=$amountGained);	
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -127,11 +127,11 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		}
 		else if(strpos($itm, "Pawneer Order") === 0){
 			$amount = 8; // NO CHEATING!
-			$cost = ($amount*$quantity)*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
-				addItemToPuchaseQueue($dbname, $targetUser, 559, 1);
+				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
+				addItemToPuchaseQueue($gcfg["DB_NAME"], $targetUser, 559, 1);
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -148,11 +148,11 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 		}
 		else if(strpos($itm, "Five Pawneer Order") === 0){
 			$amount = 30; // NO CHEATING!
-			$cost = ($amount*$quantity)*$EXHANGE_RATE;
+			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($dbname, $_SESSION['PLAYER_ID'], $money-$cost);
-				addItemToPuchaseQueue($dbname, $targetUser, 559, 5);
+				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
+				addItemToPuchaseQueue($gcfg["DB_NAME"], $targetUser, 559, 5);
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -193,7 +193,7 @@ if($hasIntl)
 
 $toUser = $_POST['custom'];
 $toUsername = "";
-if(!getUserExistInExt($dbname, $toUser))
+if(!getUserExistInExt($gcfg["DB_NAME"], $toUser))
 {
 	include("header.php");
 	echo("Cannot buy for a user who does not exist on this server.");
@@ -232,7 +232,7 @@ include("header.php");
 			echo('$'.$cost);
 		?></td>
 	<td><?php 
-			$priceHI = ($amount*$quantity) * $EXHANGE_RATE;
+			$priceHI = ($amount*$quantity) * $gcfg["EXHANGE_RATE"];
 			if($hasIntl)					
 				$cost = numfmt_format($fmt, intval(htmlspecialchars($priceHI)));
 			else
@@ -243,7 +243,7 @@ include("header.php");
 		?></td>
   </tr>
 </table>
-<h3><b>NOTE: $1USD = $<?php echo($EXHANGE_RATE)?> HorseIsle Money! (you have $<?php echo($money) ?>)</b></h3><br><b>This purchase is for User: <?php echo(htmlspecialchars($toUser)." (".$toUsername.")"); ?></b></br>Do you want to purchase?</br><br><a href="?go=1&itm=<?php echo(urlencode(htmlspecialchars($_POST['item_name']))); ?>&qnt=<?php echo(urlencode(htmlspecialchars($quantity)));?>&to=<?php echo(urlencode(htmlspecialchars($_POST['custom']))); ?>&ret=<?php echo(urlencode(htmlspecialchars($_POST['return']))); ?>&sign=<?php 
+<h3><b>NOTE: $1USD = $<?php echo($gcfg["EXHANGE_RATE"])?> HorseIsle Money! (you have $<?php echo($money) ?>)</b></h3><br><b>This purchase is for User: <?php echo(htmlspecialchars($toUser)." (".$toUsername.")"); ?></b></br>Do you want to purchase?</br><br><a href="?go=1&itm=<?php echo(urlencode(htmlspecialchars($_POST['item_name']))); ?>&qnt=<?php echo(urlencode(htmlspecialchars($quantity)));?>&to=<?php echo(urlencode(htmlspecialchars($_POST['custom']))); ?>&ret=<?php echo(urlencode(htmlspecialchars($_POST['return']))); ?>&sign=<?php 
 	$msg = htmlspecialchars($_POST['item_name']).htmlspecialchars($quantity).htmlspecialchars($_POST['custom']).htmlspecialchars($_POST['return']).$_SESSION['USERNAME'].$_SESSION['PLAYER_ID'];
 	echo(urlencode(GenHmacMessage($msg, "PPEMU"))); 
 ?>">Yes</a> | <a href="/account.php">No</a> 

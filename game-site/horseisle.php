@@ -1,5 +1,6 @@
 <?php
-  include("config.php");
+  include("common.php");
+  $gcfg = get_cfg_game();
 ?>
 <html lang="en">
 <head>
@@ -176,10 +177,10 @@ if(hasRightVersion) {  // if we've detected an acceptable version
     var oeTags = '<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\"'
     + 'width=\"790\" height=\"500\" id=\"horseisle\" name=\"horseisle\"'
     + 'codebase=\"http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab\">'
-    + '<param name=\"movie\" value=\"horseisle.swf?SERVER=".$server_ip."&PORT=".$server_port."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" /><param name=\"loop\" value=\"false\" /><param name=\"menu\" value=\"false\" /><param name=\"quality\" value=\"high\" /><param name=\"scale\" value=\"noscale\" /><param name=\"salign\" value=\"t\" /><param name=\"bgcolor\" value=\"#ffffff\" />'
-    + '<embed src=\"horseisle.swf?SERVER=".$server_ip."&PORT=".$server_port."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" loop=\"false\" menu=\"false\" quality=\"high\" scale=\"noscale\" salign=\"t\" bgcolor=\"#ffffff\" '
+    + '<param name=\"movie\" value=\"horseisle.swf?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" /><param name=\"loop\" value=\"false\" /><param name=\"menu\" value=\"false\" /><param name=\"quality\" value=\"high\" /><param name=\"scale\" value=\"noscale\" /><param name=\"salign\" value=\"t\" /><param name=\"bgcolor\" value=\"#ffffff\" />'
+    + '<embed src=\"horseisle.swf?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" loop=\"false\" menu=\"false\" quality=\"high\" scale=\"noscale\" salign=\"t\" bgcolor=\"#ffffff\" '
     + 'width=\"790\" height=\"500\" name=\"horseisle\" align=\"top\"'
-    + 'play=\"true\"'
+    + 'play=\"true\"'	
     + 'loop=\"false\"'
     + 'quality=\"high\"'
     + 'allowScriptAccess=\"sameDomain\"'

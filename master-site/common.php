@@ -4,9 +4,13 @@ $host = $_SERVER['HTTP_HOST'];
 $cfgDir = getenv("HISP_CONFIG_DIR");
 $cfgFile = getenv("HISP_CONF_FILE");
 $serverFile = getenv("HISP_SERVER_FILE");
+$gameCfgFile = getenv("HISP_GAME_CFG_FILE");
 
 if($cfgFile == null)
 	$cfgFile = "web.cfg";
+
+if($gameCfgFile == null)
+	$gameCfgFile = "game1.cfg";
 
 if($serverFile == null)
 	$serverFile = "servers.json";
@@ -20,17 +24,25 @@ if($cfgDir == null) {
 
 define("CFG_DIR", $cfgDir);
 define("CFG_FILE", $cfgDir . "/" . $cfgFile);
+define("CFG_FILE_GAME", $cfgDir . "/" . $gameCfgFile);
 define("SRV_FILE", $cfgDir . "/" . $serverFile);
 
 function handle_cfg_line(array &$cfg, string $line) {
 	$kvp = explode("=", $line);
 	if(sizeof($kvp) != 2) return;
-	$cfg[$kvp[0]] = str_replace("\n", "", str_replace("\r", "", $kvp[1]));
+	$cfg[strtoupper($kvp[0])] = str_replace("\n", "", str_replace("\r", "", $kvp[1]));
 }
 function gen_servers(string $path) {
 	if(!file_exists($path)) {
 		$file_data = file_get_contents("base/base_servers.json");
 		file_put_contents($path, $file_data);
+	}
+}
+
+function gen_game_cfg(string $path) {
+	if(!file_exists($path)) {
+		$file_data = file_get_contents("base/base_game.cfg");
+		file_put_contents($path, $file_data);		
 	}
 }
 
@@ -43,13 +55,11 @@ function gen_cfg(string $path) {
 
 function get_servers() {
 	gen_servers(SRV_FILE);
-	return json_decode(SRV_FILE);
+	$data = json_decode(file_get_contents(SRV_FILE), true);
+	return $data;
 }
 
-function get_cfg() {
-	$path = CFG_FILE;
-	gen_cfg($path);
-
+function parse_cfg(string $path) {
 	$fd = fopen($path, "rb");
 	
 	$cfg = array();
@@ -66,6 +76,19 @@ function get_cfg() {
 	return $cfg;
 }
 
+function get_cfg() {
+	$path = CFG_FILE;
+	gen_cfg($path);
+	return parse_cfg($path);
+}
+
+function get_cfg_game() {
+	$path = CFG_FILE_GAME;
+	gen_game_cfg($path);
+	$cfg = parse_cfg($path);
+	$cfg = array_merge($cfg, parse_cfg($cfg["GAME_SERVER_PROPRETIES"]));
+	return $cfg;
+}
 
 function hash_salt(string $input, string $salt)
 {
@@ -100,9 +123,14 @@ function is_logged_in()
 }
 
 
-function sql_connect() {
+function sql_connect(?string $override_db = null) {
 	$cfg = get_cfg();
-	$connect = mysqli_connect($cfg["DB_HOST"], $cfg["DB_USERNAME"], $cfg["DB_PASSWORD"],$cfg["DB_NAME"]) or die("Unable to connect to database");
+	
+	$db = $cfg["DB_NAME"];
+	if($override_db != null)
+		$db = $override_db;
+	
+	$connect = mysqli_connect($cfg["DB_HOST"], $cfg["DB_USERNAME"], $cfg["DB_PASSWORD"],$db) or die("Unable to connect to database");
 	return $connect;
 }
 
@@ -273,9 +301,10 @@ function create_fourm_thread(string $title, string $fourm)
 
 function set_thread_update(int $thread_id)
 {
+	$time = time();
 	$connect = sql_connect();
 	$stmt = $connect->prepare("UPDATE FourmThread SET UpdateTime=? WHERE ThreadId=?");
-	$stmt->bind_param("ii", time(), $thread_id);
+	$stmt->bind_param("ii", $time, $thread_id);
 	$stmt->execute();
 }
 
@@ -621,8 +650,17 @@ function endsWith( $haystack, $needle ) {
     return substr( $haystack, -$length ) === $needle;
 }
 
-
-
+function getServerById(string $id)
+{
+	$server_list = get_servers();
+	for($i = 0; $i < count($server_list); $i++)
+	{
+		if($server_list[$i]['id'] == $id){
+			return $server_list[$i];			
+		}
+	}
+	return null;
+}
 
 
 ?>

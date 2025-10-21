@@ -1,9 +1,8 @@
 <?php
 session_start();
-include("servers.php");
 include("common.php");
 include("crosserver.php");
-
+$server_list = get_servers();
 $eml_err = NULL;
 
 if(isset($_POST["RESENDEMAIL"], $_POST["USER"], $_POST["PASS"])){
