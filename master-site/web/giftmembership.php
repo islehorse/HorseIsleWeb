@@ -1,6 +1,5 @@
 <?php
-	include("../config.php");
-	include("../servers.php");
+		include("../servers.php");
 	include("../common.php");
 	include("../crosserver.php");
 	include("header.php");

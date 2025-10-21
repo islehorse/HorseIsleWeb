@@ -22,4 +22,15 @@ $EXHANGE_RATE = 125000; # How much 1 USD is worth as HI Money
 # Ideally, this would be a random string of numbers, letters and symbols like 20 characters long T-T
 $hmac_secret = "!!NOTSET!!";
 $master_site = "//master.horse";
+
+$_CFG = array(
+	
+	'DB_NAME' => 'game1',
+	'DB_USER' => 'horseisle'
+	'DB_PASSWORD' => 'test123',
+	'DB_HOST' => '127.0.0.1',
+	
+);
+
+
 ?>

@@ -1,0 +1,8 @@
+[ 
+	{
+		'id': 'game1',
+		'icon': 'beta.gif', 
+		'site': 'http://localhost:81', 
+		'desc': ' '
+	}
+]

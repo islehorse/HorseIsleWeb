@@ -1,6 +1,5 @@
 <?php
 include("../common.php");
-include("../config.php");
 include("header.php");
 ?>
 <BR>

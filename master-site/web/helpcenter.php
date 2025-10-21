@@ -1,7 +1,6 @@
 <?php
 	include("../common.php");
-	include("../config.php");
-	include("header.php");
+		include("header.php");
 	$obj = json_decode(file_get_contents("knowledge_base.json"), true);
 
 	function get_kb_id(int $kbId){

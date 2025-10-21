@@ -29,7 +29,7 @@ if(isset( $_GET["U"], $_GET["AC"] )){
 			if(user_exists($verify_username)) {
 				$user_id = get_userid($verify_username);
 				if(!get_email_activation_status($user_id)) {
-					$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+					$connect = sql_connect();
 					$stmt = $connect->prepare("UPDATE Users SET EmailActivated='YES' WHERE Id=?"); 
 					$stmt->bind_param("i", $user_id);
 					$stmt->execute();
@@ -169,7 +169,9 @@ else if(isset( $_POST['user'],$_POST['pass1'],$_POST['pass2'],$_POST['sex'],$_PO
 	
 	
 	populate_db();
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$cfg = get_cfg();
+	
+	$connect = sql_connect();
 	$result = mysqli_query($connect, "SELECT MAX(Id) FROM Users");
 	$user_id = $result->fetch_row()[0] + 1;
 	if($user_id == NULL)
@@ -188,7 +190,7 @@ else if(isset( $_POST['user'],$_POST['pass1'],$_POST['pass2'],$_POST['sex'],$_PO
 	if(count($problems) <= 0)
 	{
 		$activated = "NO";
-		if(!$email_activation){
+		if(!$cfg["EMAIL_ACTIVATION"]){
 			$activated = "YES";
 		}
 

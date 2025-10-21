@@ -1,6 +1,72 @@
 <?php
 $host = $_SERVER['HTTP_HOST'];
 
+$cfgDir = getenv("HISP_CONFIG_DIR");
+$cfgFile = getenv("HISP_CONF_FILE");
+$serverFile = getenv("HISP_SERVER_FILE");
+
+if($cfgFile == null)
+	$cfgFile = "web.cfg";
+
+if($serverFile == null)
+	$serverFile = "servers.json";
+
+if($cfgDir == null) {
+	$cfgDir = "/etc/hisp";
+	if(php_uname('s') === "Windows NT") {
+		$cfgDir = getenv("APPDATA")."\\"."HISP";
+	}
+}
+
+define("CFG_DIR", $cfgDir);
+define("CFG_FILE", $cfgDir . "/" . $cfgFile);
+define("SRV_FILE", $cfgDir . "/" . $serverFile);
+
+function handle_cfg_line(array &$cfg, string $line) {
+	$kvp = explode("=", $line);
+	if(sizeof($kvp) != 2) return;
+	$cfg[$kvp[0]] = str_replace("\n", "", str_replace("\r", "", $kvp[1]));
+}
+function gen_servers(string $path) {
+	if(!file_exists($path)) {
+		$file_data = file_get_contents("base/base_servers.json");
+		file_put_contents($path, $file_data);
+	}
+}
+
+function gen_cfg(string $path) {
+	if(!file_exists($path)) {
+		$file_data = file_get_contents("base/base_web.cfg");
+		file_put_contents($path, $file_data);		
+	}
+}
+
+function get_servers() {
+	gen_servers(SRV_FILE);
+	return json_decode(SRV_FILE);
+}
+
+function get_cfg() {
+	$path = CFG_FILE;
+	gen_cfg($path);
+
+	$fd = fopen($path, "rb");
+	
+	$cfg = array();
+	
+	while($line = fgets($fd)) {
+		if(strlen($line) <= 0) continue;
+		if($line == "") continue;
+		if(startsWith($line,"#")) continue;
+		
+		handle_cfg_line($cfg, $line);
+	}
+	
+	fclose($fd);
+	return $cfg;
+}
+
+
 function hash_salt(string $input, string $salt)
 {
 	$output = hash('sha512',$input,true);
@@ -33,11 +99,18 @@ function is_logged_in()
 	return false;
 }
 
+
+function sql_connect() {
+	$cfg = get_cfg();
+	$connect = mysqli_connect($cfg["DB_HOST"], $cfg["DB_USERNAME"], $cfg["DB_PASSWORD"],$cfg["DB_NAME"]) or die("Unable to connect to database");
+	return $connect;
+}
+
 function user_exists(string $username)
 {
-	include('config.php');
+	
 	$usernameUppercase = strtoupper($username);
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(1) FROM Users WHERE UPPER(Username)=?"); 
 	$stmt->bind_param("s", $usernameUppercase);
 	$stmt->execute();
@@ -48,8 +121,8 @@ function user_exists(string $username)
 
 function get_username(string $id)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT Username FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -77,14 +150,15 @@ function get_host(){
 
 function GenHmacMessage(string $data, string $channel, bool $restricted=true)
 {
-	include('config.php');
-	if($hmac_secret === "!!NOTSET!!") {
+	$cfg = get_cfg();
+	
+	if($cfg["HMAC_SECRET"] === "!!NOTSET!!") {
 		echo("<script>alert('Please set HMAC_SECRET !')</script>");
-		echo("<h1>Set \$hmac_secret in config.php!</h1>");
+		echo("<h1>Set HMAC_SECRET in web.cfg!</h1>");
 		exit();
 	}
 	
-	$secret = $hmac_secret.$channel;
+	$secret = $cfg["HMAC_SECRET"].$channel;
 	
 	if($restricted)
 		$secret .= $_SERVER['REMOTE_ADDR'].date('mdy');
@@ -94,7 +168,6 @@ function GenHmacMessage(string $data, string $channel, bool $restricted=true)
 }
 
 function send_activation_email(string $email, string $username, string $password){
-	include('config.php');
 
 	$hmac = GenHmacMessage($username, "UserActivation", false);
 	$hmacSignature = base64_url_encode(hex2bin($hmac));
@@ -115,8 +188,7 @@ function send_activation_email(string $email, string $username, string $password
 
 function count_topics(string $fourm)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(*) FROM FourmThread WHERE Fourm=?"); 
 	$stmt->bind_param("s", $fourm);
 	$stmt->execute();
@@ -127,8 +199,7 @@ function count_topics(string $fourm)
 
 function count_replies(int $thread)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(*) FROM FourmReply WHERE ThreadId=?"); 
 	$stmt->bind_param("i", $thread);
 	$stmt->execute();
@@ -139,8 +210,7 @@ function count_replies(int $thread)
 
 function get_last_reply_author(string $thread)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM FourmReply WHERE ThreadId=? ORDER BY CreationTime DESC LIMIT 1"); 
 	$stmt->bind_param("i", $thread);
 	$stmt->execute();
@@ -151,8 +221,7 @@ function get_last_reply_author(string $thread)
 
 function get_last_reply_time(string $thread)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM FourmReply WHERE ThreadId=? ORDER BY CreationTime DESC LIMIT 1"); 
 	$stmt->bind_param("i", $thread);
 	$stmt->execute();
@@ -163,8 +232,7 @@ function get_last_reply_time(string $thread)
 
 function get_first_reply_author(string $thread)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM FourmReply WHERE ThreadId=? ORDER BY CreationTime ASC LIMIT 1"); 
 	$stmt->bind_param("i", $thread);
 	$stmt->execute();
@@ -175,8 +243,7 @@ function get_first_reply_author(string $thread)
 
 function get_first_reply_time(string $thread)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM FourmReply WHERE ThreadId=? ORDER BY CreationTime ASC LIMIT 1"); 
 	$stmt->bind_param("i", $thread);
 	$stmt->execute();
@@ -187,9 +254,8 @@ function get_first_reply_time(string $thread)
 
 function create_fourm_thread(string $title, string $fourm)
 {
-	include('config.php');
-	
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$cfg = get_cfg(CFG_FILE);	
+	$connect = sql_connect();
 	$result = mysqli_query($connect, "SELECT MAX(ThreadId) FROM FourmThread");
 	
 	$thread_id = $result->fetch_row()[0] + 1;
@@ -207,8 +273,7 @@ function create_fourm_thread(string $title, string $fourm)
 
 function set_thread_update(int $thread_id)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("UPDATE FourmThread SET UpdateTime=? WHERE ThreadId=?");
 	$stmt->bind_param("ii", time(), $thread_id);
 	$stmt->execute();
@@ -216,9 +281,8 @@ function set_thread_update(int $thread_id)
 
 function create_fourm_reply(int $thread_id, string $username, string $contents, string $fourm, bool $madeByAdmin)
 {
-	include('config.php');
-	
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$cfg = get_cfg(CFG_FILE);	
+	$connect = sql_connect();
 	$result = mysqli_query($connect, "SELECT MAX(ReplyId) FROM FourmReply");
 	
 	$reply_id = $result->fetch_row()[0] + 1;
@@ -243,8 +307,7 @@ function create_fourm_reply(int $thread_id, string $username, string $contents, 
 
 function get_fourm_thread($threadId)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM FourmThread WHERE ThreadId=?"); 
 	$stmt->bind_param("i", $threadId);
 	$stmt->execute();
@@ -255,8 +318,7 @@ function get_fourm_thread($threadId)
 
 function get_fourm_replies($threadId)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM FourmReply WHERE ThreadId=?"); 
 	$stmt->bind_param("i", $threadId);
 	$stmt->execute();
@@ -275,8 +337,7 @@ function get_fourm_replies($threadId)
 
 function get_all_news()
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM News ORDER BY CreationDate DESC"); 
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -294,8 +355,7 @@ function get_all_news()
 
 function get_news_id(int $id)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM News WHERE NewsId=?"); 
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -315,8 +375,7 @@ function get_news_id(int $id)
 
 function get_recent_news()
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM News ORDER BY CreationDate DESC LIMIT 5"); 
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -334,8 +393,7 @@ function get_recent_news()
 
 function get_latest_news()
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM News ORDER BY CreationDate DESC LIMIT 1"); 
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -354,8 +412,7 @@ function get_latest_news()
 
 function post_news(string $title, string $text)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$result = mysqli_query($connect, "SELECT MAX(NewsId) FROM News");
 	
 	$news_id = $result->fetch_row()[0] + 1;
@@ -371,8 +428,7 @@ function post_news(string $title, string $text)
 
 function get_fourm_threads($fourm)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT * FROM FourmThread WHERE Fourm=? ORDER BY UpdateTime DESC"); 
 	$stmt->bind_param("s", $fourm);
 	$stmt->execute();
@@ -390,8 +446,7 @@ function get_fourm_threads($fourm)
 
 function get_email(int $userid)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT Email FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
@@ -402,8 +457,7 @@ function get_email(int $userid)
 
 function get_userid(string $username)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$usernameUppercase = strtoupper($username);
 	$stmt = $connect->prepare("SELECT Id FROM Users WHERE UPPER(Username)=?"); 
 	$stmt->bind_param("s", $usernameUppercase);
@@ -415,8 +469,7 @@ function get_userid(string $username)
 
 function get_sex(int $userid)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	
 	$stmt = $connect->prepare("SELECT Gender FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $userid);
@@ -428,8 +481,7 @@ function get_sex(int $userid)
 
 function get_admin(int $userid)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	
 	$stmt = $connect->prepare("SELECT Admin FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $userid);
@@ -441,8 +493,7 @@ function get_admin(int $userid)
 
 function get_mod(int $userid)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	
 	$stmt = $connect->prepare("SELECT Moderator FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $userid);
@@ -454,8 +505,7 @@ function get_mod(int $userid)
 
 function get_password_hash(int $userid)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT PassHash FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
@@ -466,8 +516,7 @@ function get_password_hash(int $userid)
 
 function get_salt(int $userid)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");	
+	$connect = sql_connect();	
 	$stmt = $connect->prepare("SELECT Salt FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
@@ -489,8 +538,7 @@ function check_password(int $userId, string $password)
 
 function count_LastOn(int $userId)
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(*) FROM LastOn WHERE Id=?");
 	$stmt->bind_param("i", $userId);
 	$stmt->execute();
@@ -501,10 +549,7 @@ function count_LastOn(int $userId)
 
 function get_email_activation_status(int $userId)
 {
-
-
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT EmailActivated FROM Users WHERE Id=?");
 	$stmt->bind_param("i", $userId);
 	$stmt->execute();
@@ -522,8 +567,7 @@ function get_LastOn(int $userId)
 	}
 
 
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT ServerId FROM LastOn WHERE Id=?");
 	$stmt->bind_param("i", $userId);
 	$stmt->execute();
@@ -536,30 +580,27 @@ function get_LastOn(int $userId)
 
 function set_LastOn(int $userId, string $lastOn)
 {
-	include('config.php');
-	
+	$cfg = get_cfg(CFG_FILE);	
 	if(get_LastOn($userId) === "NONE")
 	{
-		$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+		$connect = sql_connect();
 		$stmt = $connect->prepare("INSERT INTO LastOn VALUES(?, ?)");
 		$stmt->bind_param("is", $userId, $lastOn);
 		$stmt->execute();
 	}
 	else
 	{
-		$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+		$connect = sql_connect();
 		$stmt = $connect->prepare("UPDATE LastOn SET ServerId=? WHERE Id=?");
 		$stmt->bind_param("si", $lastOn, $userId);
 		$stmt->execute();
 	}
 }
 
-
-
 function populate_db()
 {
-	include('config.php');
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	
+	$connect = sql_connect();
 	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS Users(Id INT, Username TEXT(16),Email TEXT(128),Country TEXT(128),SecurityQuestion Text(128),SecurityAnswerHash TEXT(128),Age INT,PassHash TEXT(128), Salt TEXT(128),Gender TEXT(16), Admin TEXT(3), Moderator TEXT(3), EmailActivated TEXT(3))");
 	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS LastOn(Id INT, ServerId TEXT(1028))");
 	mysqli_query($connect, "CREATE TABLE IF NOT EXISTS FourmThread(ThreadId INT, Title TEXT(100), Fourm TEXT(10), UpdateTime INT, Locked TEXT(3))");
@@ -579,6 +620,9 @@ function endsWith( $haystack, $needle ) {
     }
     return substr( $haystack, -$length ) === $needle;
 }
+
+
+
 
 
 ?>

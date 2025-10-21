@@ -1,9 +1,9 @@
 <?php
+
 function getPlayerList($database)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$onlineUsers = mysqli_query($connect, "SELECT * FROM OnlineUsers");
 	
 	$users_on = [];
@@ -19,9 +19,8 @@ function getPlayerList($database)
 
 function checkUserBuddy($database, $yourId, $friendsId)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(1) FROM BuddyList WHERE (Id=? AND IdFriend=?) OR (Id=? AND IdFriend=?)");
 	$stmt->bind_param("iiii", $yourId, $friendsId, $friendsId, $yourId);
 	$stmt->execute();
@@ -32,27 +31,26 @@ function checkUserBuddy($database, $yourId, $friendsId)
 
 function getNoPlayersOnlineInServer($database)
 {
-	include('config.php');
+	return 0;
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$onlineUsers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers");
 	return $onlineUsers->fetch_row()[0];
 }
 
 function getNoSubbedPlayersOnlineInServer($database)
 {
-	include('config.php');
+	return 0;
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$onlineSubscribers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Subscribed = 'YES'");
 	return $onlineSubscribers->fetch_row()[0];
 }
 
 function getUserMoney($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT Money FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -64,9 +62,8 @@ function getUserMoney($database, $id)
 
 function setUserMoney($database, $id, $money)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("UPDATE UserExt SET Money=? WHERE Id=?");
 	$stmt->bind_param("ii", $money, $id);
 	$stmt->execute();
@@ -80,9 +77,8 @@ function setUserSubbed($database, $id, $subbed)
 	else
 		$subbedV = "NO";
 	
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("UPDATE UserExt SET Subscriber=? WHERE Id=?");
 	$stmt->bind_param("si", $subedV, $id);
 	$stmt->execute();
@@ -90,9 +86,8 @@ function setUserSubbed($database, $id, $subbed)
 
 function setUserSubbedUntil($database, $id, $subbedUntil)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("UPDATE UserExt SET SubscribedUntil=? WHERE Id=?");
 	$stmt->bind_param("ii", $subbedUntil, $id);
 	$stmt->execute();
@@ -100,9 +95,8 @@ function setUserSubbedUntil($database, $id, $subbedUntil)
 
 function getUserBankMoney($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT BankBalance FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -114,9 +108,8 @@ function getUserBankMoney($database, $id)
 
 function getUserLoginDate($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT LastLogin FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -128,9 +121,8 @@ function getUserLoginDate($database, $id)
 
 function getUserQuestPoints($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT QuestPoints FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -142,9 +134,8 @@ function getUserQuestPoints($database, $id)
 
 function getUserExistInExt($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(*) FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -156,9 +147,8 @@ function getUserExistInExt($database, $id)
 
 function getUserTotalLogins($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT TotalLogins FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -170,9 +160,8 @@ function getUserTotalLogins($database, $id)
 
 function getUserPlaytime($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT FreeMinutes FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -185,9 +174,8 @@ function getUserPlaytime($database, $id)
 
 function getUserSubTimeRemaining($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT SubscribedUntil FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -200,9 +188,8 @@ function getUserSubTimeRemaining($database, $id)
 
 function addItemToPuchaseQueue($database, $playerId, $itemId, $itemCount)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("INSERT INTO ItemPurchaseQueue VALUES(?,?,?)");
 	$stmt->bind_param("iii", $playerId, $itemId, $itemCount);
 	$stmt->execute();
@@ -212,9 +199,8 @@ function addItemToPuchaseQueue($database, $playerId, $itemId, $itemCount)
 
 function getUserSubbed($database, $id)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT Subscriber FROM UserExt WHERE Id=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
@@ -227,10 +213,9 @@ function getUserSubbed($database, $id)
 
 function isUserOnline($database, $id)
 {
-	include('config.php');
-	
+	return true;
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(1) FROM OnlineUsers WHERE playerId=?");
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
@@ -243,9 +228,9 @@ function isUserOnline($database, $id)
 
 function getNoModPlayersOnlineInServer($database)
 {
-	include('config.php');
+	return 0;
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$onlineModerators = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Moderator = 'YES' OR Admin='YES'");
 	$num = $onlineModerators->fetch_row()[0];
 	mysqli_close($connect);
@@ -266,9 +251,8 @@ function getServerById(string $id)
 
 function userid_exists(string $database, string $userid)
 {
-	include('config.php');
 	$dbname = $database;
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT COUNT(1) FROM Users WHERE Id=?");
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
@@ -281,7 +265,6 @@ function userid_exists(string $database, string $userid)
 
 function createAccountOnServer(string $database)
 {
-	include('config.php');
 	$dbname = $database;
 
 	$id = intval($_SESSION['PLAYER_ID']);
@@ -293,7 +276,7 @@ function createAccountOnServer(string $database)
 	$salt = $_SESSION['SALT'];
 
 
-	$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+	$connect = sql_connect();
 	$stmt = $connect->prepare("INSERT INTO Users VALUES(?,?,?,?,?,?,?)"); 
 	$stmt->bind_param("issssss", $id, $username, $passhash, $salt, $sex, $admin, $mod);
 	$stmt->execute();

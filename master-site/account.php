@@ -3,7 +3,6 @@ session_start();
 include("servers.php");
 include("common.php");
 include("crosserver.php");
-include("config.php");
 
 $eml_err = NULL;
 
@@ -34,15 +33,15 @@ improper_auth:
 }
 if(isset($_POST["USER"], $_POST["PASS"]))
 {
+	$cfg = get_cfg();
 	$username = $_POST["USER"];
 	$password = $_POST["PASS"];
 	if(!user_exists($username))
 		goto auth_failed;
 	$id = get_userid($username);
 	if(check_password($id, $password))
-	{
-		
-		if($email_activation === true) {
+	{	
+		if($cfg["EMAIL_ACTIVATION"] === true) {
 			if(!get_email_activation_status($id)){
 email_error:
 				include("web/header.php");

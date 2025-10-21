@@ -1,6 +1,5 @@
 <?php
 include("../common.php");
-include("../config.php");
 include("header.php");
 ?>
 <TABLE BORDER=0 CELLPADDING=10><TR><TD>

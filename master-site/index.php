@@ -2,7 +2,6 @@
 session_start();
 include('common.php');
 include('crosserver.php');
-include('config.php');
 populate_db();
 
 // Handle logout
@@ -19,7 +18,7 @@ if(isset($_GET["LOGOUT"]))
 $onlineUsers = getNoPlayersOnlineGlobal();
 $onlineSubscribers = getNoSubbedPlayersOnlineGlobal();
 $onlineModerators = getNoModPlayersOnlineGlobal();
-$connect = mysqli_connect($dbhost, $dbuser, $dbpass,$dbname) or die("Unable to connect to '$dbhost'");
+$connect = sql_connect();
 $activeAccounts = mysqli_query($connect, "SELECT COUNT(1) FROM Users");
 $hasIntl = function_exists('numfmt_create');
 
