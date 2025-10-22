@@ -176,8 +176,8 @@ if(isset($_GET['USER'])) {
 	$user = $_GET['USER']; 
 };
 
-if(isset($gcfg["fix_offical_bugs"])) {
-	if($gcfg["fix_offical_bugs"] == "true") {
+if(isset($gcfg["FIX_OFFICAL_BUGS"])) {
+	if($gcfg["FIX_OFFICAL_BUGS"] == "true") {
 		$swf = "horsisle_mapfix.swf"; 
 	}
 };
