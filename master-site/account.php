@@ -132,14 +132,14 @@ Multiple servers are required since there is a max capacity of around 150 player
 for($i = 0; $i < count($server_list); $i++)
 {
 	$server = $server_list[$i];
-	$icon = $server['icon'];
-	$url = $server['external_site'];
-	$desc = $server['desc'];
-	$id = $server['id'];
+	$icon = $server["icon"];
+	$url = $server["external_site"];
+	$desc = $server["desc"];
+	$id = $server["id"];
 	
 	$domain = parse_url($url, PHP_URL_HOST);
 	$join = '';
-	$num_on = getNoSubbedPlayersOnlineInServer($id);
+	$num_on = getNoPlayersOnlineInServer($id);
 	
 	$pExist = checkUserIdExist($id, $player_id);
 	if(!$pExist) {
