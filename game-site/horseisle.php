@@ -178,7 +178,7 @@ if(isset($_GET['USER'])) {
 
 if(isset($gcfg["FIX_OFFICAL_BUGS"])) {
 	if($gcfg["FIX_OFFICAL_BUGS"] == "true") {
-		$swf = "horsisle_mapfix.swf"; 
+		$swf = "horseisle_mapfix.swf"; 
 	}
 };
 
@@ -187,7 +187,7 @@ if(hasRightVersion) {  // if we've detected an acceptable version
     var oeTags = '<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\"'
     + 'width=\"790\" height=\"500\" id=\"horseisle\" name=\"horseisle\"'
     + 'codebase=\"http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab\">'
-    + '<param name=\"movie\" value=\"horseisle.swf?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" /><param name=\"loop\" value=\"false\" /><param name=\"menu\" value=\"false\" /><param name=\"quality\" value=\"high\" /><param name=\"scale\" value=\"noscale\" /><param name=\"salign\" value=\"t\" /><param name=\"bgcolor\" value=\"#ffffff\" />'
+    + '<param name=\"movie\" value=\"".$swf."?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" /><param name=\"loop\" value=\"false\" /><param name=\"menu\" value=\"false\" /><param name=\"quality\" value=\"high\" /><param name=\"scale\" value=\"noscale\" /><param name=\"salign\" value=\"t\" /><param name=\"bgcolor\" value=\"#ffffff\" />'
     + '<embed src=\"".$swf."?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" loop=\"false\" menu=\"false\" quality=\"high\" scale=\"noscale\" salign=\"t\" bgcolor=\"#ffffff\" '
     + 'width=\"790\" height=\"500\" name=\"horseisle\" align=\"top\"'
     + 'play=\"true\"'	
