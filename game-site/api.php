@@ -315,15 +315,17 @@ if(isset($_GET["req"], $_GET["data"], $_GET["hmac"])) {
 				echo(json_encode(checkUserIdExist($data[0])));
 				break;
 			case "create_account_on_server":
-				echo(json_encode(createAccountOnServer($data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[7])));
+				echo(json_encode(createAccountOnServer($data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6])));
 				break;
 			default:
+				error_log("invalid api method");
 				echo(json_encode("error: invalid api method"));
 				break;
 		}
 		
 	}
 	else {
+		error_log("invalid hmac");
 		header("Status: 403 Forbidden");
 	}
 }

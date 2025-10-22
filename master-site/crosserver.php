@@ -98,7 +98,7 @@ function getNoModPlayersOnlineInServer(string $serverId)
 
 function checkUserIdExist(string $serverId, int $userid)
 {
-	return api_send($serverId, "userid_exist", []);
+	return api_send($serverId, "userid_exist", [$userid]);
 }
 
 function createAccountOnServer(string $serverId, int $id, string $username, string $sex, string $admin, string $mod, string $passhash, string $salt)

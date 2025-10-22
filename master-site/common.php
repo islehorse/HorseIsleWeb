@@ -42,13 +42,19 @@ function gen_servers(string $path) {
 function gen_game_cfg(string $path) {
 	if(!file_exists($path)) {
 		$file_data = file_get_contents("web/base_game.cfg");
-		file_put_contents($path, $file_data);		
+		
+		$file_data = str_replace("!!NOTSET!!", bin2hex(random_bytes(0x20)), $file_data);
+		
+		file_put_contents($path, $file_data);
 	}
 }
 
 function gen_cfg(string $path) {
 	if(!file_exists($path)) {
 		$file_data = file_get_contents("web/base_web.cfg");
+		
+		$file_data = str_replace("!!NOTSET!!", bin2hex(random_bytes(0x14)), $file_data);
+		
 		file_put_contents($path, $file_data);		
 	}
 }
@@ -62,6 +68,7 @@ function get_servers() {
 
 function parse_cfg(string $path) {
 	$fd = fopen($path, "rb");
+	$prefix = "WEB_";
 	
 	$cfg = array();
 	
@@ -71,6 +78,13 @@ function parse_cfg(string $path) {
 		if(startsWith($line,"#")) continue;
 		
 		handle_cfg_line($cfg, $line);
+	}
+	
+	foreach ($_ENV as $key => $value) {
+		if(startsWith(strtoupper($key), $prefix)){
+			$ekey = substr($key, strlen($prefix));
+			$cfg[$ekey] = $value;
+		}
 	}
 	
 	fclose($fd);
@@ -150,7 +164,6 @@ function user_exists(string $username)
 
 function get_username(string $id)
 {
-	
 	$connect = sql_connect();
 	$stmt = $connect->prepare("SELECT Username FROM Users WHERE Id=?"); 
 	$stmt->bind_param("i", $id);
@@ -180,7 +193,12 @@ function api_send(string $serverId, string $req, $data) {
 	
 	$server = getServerById($serverId);
 	
-	return json_decode(file_get_contents($server["internal_site"] . "api.php?req=" . $req . "&data=" . $dataenc . "&hmac=" . $hmac));
+	$endpoint = $server["internal_site"];
+	if(!endsWith($endpoint, "/"))
+		$endpoint .= "/";
+	
+	$api_resp = file_get_contents($endpoint . "api.php?req=" . $req . "&data=" . $dataenc . "&hmac=" . $hmac);
+	return json_decode($api_resp);
 }
 
 function get_host(){
@@ -223,7 +241,7 @@ function send_activation_email(string $email, string $username, string $password
 	
 	$subject = "Horse Isle Account Verification";
 	
-	mail($email, $subject, $body, $headers);	
+	mail($email, $subject, $body, $headers);
 }
 
 
