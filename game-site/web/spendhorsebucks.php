@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("config.php");
+include("../common.php");
 include("header.php");
 if(!is_logged_in()){
 	echo('Account information not found.  please login again.');

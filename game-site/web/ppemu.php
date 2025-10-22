@@ -1,8 +1,8 @@
 <?php
 
 session_start();
-include("../api.php");
 include("../common.php");
+include("../api.php");
 $gcfg = get_cfg_game();
 
 if(!is_logged_in()){

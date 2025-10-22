@@ -1,6 +1,7 @@
 <?php
 session_start();
-include("api.php");
+include("../common.php");
+include("../api.php");
 include("header.php");
 $gcfg = get_cfg_game();
 ?>

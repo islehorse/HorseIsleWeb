@@ -102,7 +102,7 @@ else
 	$subTime = 0;
 	$playtime = 0;
 }
-if($gcfg["ALL_USERS_SUBSCRIBED"])
+if($gcfg["ALL_USERS_SUBSCRIBED"] == "true")
 	$subbed = true;
 
 $hasIntl = function_exists('numfmt_create');
@@ -231,7 +231,7 @@ h+=60;//h += 96;
 		$daysRemain = floor($difference/86400);
 		$daysStr = (string)$daysRemain;
 		
-		if($gcfg["ALL_USERS_SUBSCRIBED"])
+		if($gcfg["ALL_USERS_SUBSCRIBED"] == "true")
 			$daysStr = "∞";
 		
 		echo('</FONT><BR>('.$daysStr.' days remain in your subscription)</FONT> ');
