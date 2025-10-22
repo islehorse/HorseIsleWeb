@@ -59,6 +59,7 @@ function get_servers() {
 	return $data;
 }
 
+
 function parse_cfg(string $path) {
 	$fd = fopen($path, "rb");
 	
@@ -130,7 +131,7 @@ function sql_connect(?string $override_db = null) {
 	if($override_db != null)
 		$db = $override_db;
 	
-	$connect = mysqli_connect($cfg["DB_HOST"], $cfg["DB_USERNAME"], $cfg["DB_PASSWORD"],$db) or die("Unable to connect to database");
+	$connect = mysqli_connect($cfg["DB_IP"], $cfg["DB_USERNAME"], $cfg["DB_PASSWORD"],$db) or die("Unable to connect to database");
 	return $connect;
 }
 
@@ -172,6 +173,16 @@ function get_protocol(){
 	}
 }
 
+
+function api_send(string $serverId, string $req, $data) {
+	$dataenc = base64_url_encode(json_encode($data));
+	$hmac = GenHmacMessage($req . $dataenc, "HORSEISLE-CROSSERVER-REQUEST", false);
+	
+	$server = getServerById($serverId);
+	
+	return json_decode(file_get_contents($server["internal_site"] . "api.php?req=" . $req . "&data=" . $dataenc . "&hmac=" . $hmac));
+}
+
 function get_host(){
 	return $_SERVER['HTTP_HOST'];
 }
@@ -197,6 +208,8 @@ function GenHmacMessage(string $data, string $channel, bool $restricted=true)
 
 function send_activation_email(string $email, string $username, string $password){
 
+	$cfg = get_cfg();
+	
 	$hmac = GenHmacMessage($username, "UserActivation", false);
 	$hmacSignature = base64_url_encode(hex2bin($hmac));
 	$activateUrl = get_protocol().get_host()."/web/newuser.php?U=".htmlspecialchars($username, ENT_QUOTES)."&AC=".htmlspecialchars($hmacSignature, ENT_QUOTES);
@@ -204,8 +217,8 @@ function send_activation_email(string $email, string $username, string $password
 	
 	$headers  = 'MIME-Version: 1.0' . "\r\n";
 	$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
-	$headers .= 'From: '.$from_email."\r\n";
-    $headers .= 'Reply-To: '.$from_email."\r\n";
+	$headers .= 'From: '.$cfg['FROM_EMAIL_ADDR']."\r\n";
+    $headers .= 'Reply-To: '.$cfg['FROM_EMAIL_ADDR']."\r\n";
     $headers .= 'X-Mailer: PHP/' . phpversion();
 	
 	$subject = "Horse Isle Account Verification";
@@ -661,6 +674,8 @@ function getServerById(string $id)
 	}
 	return null;
 }
+
+
 
 
 ?>

@@ -2,6 +2,8 @@
 session_start();
 include("common.php");
 include("crosserver.php");
+$cfg = get_cfg();
+
 $server_list = get_servers();
 $eml_err = NULL;
 
@@ -21,7 +23,7 @@ if(isset($_POST["RESENDEMAIL"], $_POST["USER"], $_POST["PASS"])){
 		}
 		send_activation_email($_POST["RESENDEMAIL"], $username, $password);
 		include("web/header.php");
-		echo("<TABLE cellpadding=10><TR><TD><B>Your activation email has been re-sent to ".htmlspecialchars($_POST["RESENDEMAIL"])."</B><BR>Look for the email from ".htmlspecialchars($from_email)." with your activation code!<BR>You cannot login until you CLICK the link with your code in the email.<BR>  Be sure to check your Spam email box in case it goes there.<BR><BR><A HREF=/>Go Back to Main Page</A><BR><BR></TD></TR></TABLE>");
+		echo("<TABLE cellpadding=10><TR><TD><B>Your activation email has been re-sent to ".htmlspecialchars($_POST["RESENDEMAIL"])."</B><BR>Look for the email from ".htmlspecialchars($cfg["FROM_EMAIL_ADDR"])." with your activation code!<BR>You cannot login until you CLICK the link with your code in the email.<BR>  Be sure to check your Spam email box in case it goes there.<BR><BR><A HREF=/>Go Back to Main Page</A><BR><BR></TD></TR></TABLE>");
 		include("web/footer.php");
 		exit();
 	}
@@ -47,7 +49,7 @@ email_error:
 				if($eml_err !== NULL){
 					echo("<FONT COLOR=660000><B>Errors in Sending Activation Email:</B><BR>".htmlspecialchars($eml_err, ENT_QUOTES)."<BR></FONT><HR>");					
 				}
-				echo('<B>You still need to click the Activation link that was emailed to you at '.htmlspecialchars(get_email($id), ENT_QUOTES).'.</B><BR>Please check your spam mailbox just in case. The email will be from '.htmlspecialchars($from_email, ENT_QUOTES).'.<BR>If you would like to resend the authentication email somewhere else: <FORM METHOD=POST>EMAIL:<INPUT TYPE=text size=30 NAME=RESENDEMAIL><INPUT TYPE=HIDDEN NAME=USER VALUE='.htmlspecialchars(get_username($id), ENT_QUOTES).'><INPUT TYPE=HIDDEN NAME=PASS VALUE='.htmlspecialchars($password, ENT_QUOTES).' ><INPUT TYPE=SUBMIT VALUE=RESEND>');
+				echo('<B>You still need to click the Activation link that was emailed to you at '.htmlspecialchars(get_email($id), ENT_QUOTES).'.</B><BR>Please check your spam mailbox just in case. The email will be from '.htmlspecialchars($cfg["FROM_EMAIL_ADDR"], ENT_QUOTES).'.<BR>If you would like to resend the authentication email somewhere else: <FORM METHOD=POST>EMAIL:<INPUT TYPE=text size=30 NAME=RESENDEMAIL><INPUT TYPE=HIDDEN NAME=USER VALUE='.htmlspecialchars(get_username($id), ENT_QUOTES).'><INPUT TYPE=HIDDEN NAME=PASS VALUE='.htmlspecialchars($password, ENT_QUOTES).' ><INPUT TYPE=SUBMIT VALUE=RESEND>');
 				include('web/footer.php');
 				exit();
 			}
@@ -96,7 +98,7 @@ if(isset($_GET['CONNECT']))
 		$playerId = $_SESSION['PLAYER_ID'];
 		
 		$hmac = GenHmacMessage((string)$playerId, "CrossSiteLogin");
-		$redirectUrl = $server['site'];
+		$redirectUrl = $server['external_site'];
 		
 		if(!endsWith($redirectUrl, '/'))
 			$redirectUrl .= '/';
@@ -127,45 +129,44 @@ if(!userExistAny($player_id))
 Normally you will only play on one server.  <B>Playing on any server uses up playtime on all servers</B>, so you do not gain any free time. Reasons for playing on more than one include joining a friend, or in case your normal server is down. 
 Multiple servers are required since there is a max capacity of around 150 players online per server.<BR><B>Please note, a profile on any individual server will be permanently deleted after 183 days (6 months) of not logging into the game on that specific server or your subscription expiring, whichever is later.</b><TABLE CELLPADDING=5 CELLSPACING=0 BORDER=0 BGCOLOR=FFFFFF><TR><TD COLSPAN=5><?php # <BR><FONT COLOR=550000><B>You have 8 rule violation points against your account. [ <A HREF=/web/rulesbroken.php>REVIEW VIOLATIONS</A> ]</B></FONT><BR> ?></TD></TR><TR><TD COLSPAN=2><B>GAME SERVERS</B> (all identical please only join 1 or 2)</TD><TD><B>PROFILE</B> (not current)</TD><TD><B>ONLINE</B></TD><TD><B>LOGIN</B></TD></TR></TD></TR><TR><TD COLSPAN=5><HR></TD></TR>
 <?php
-
-
 for($i = 0; $i < count($server_list); $i++)
 {
 	$server = $server_list[$i];
 	$icon = $server['icon'];
-	$url = $server['site'];
+	$url = $server['external_site'];
 	$desc = $server['desc'];
 	$id = $server['id'];
-	$database = $server['database'];
 	
 	$domain = parse_url($url, PHP_URL_HOST);
 	$join = '';
-	$num_on = getNoSubbedPlayersOnlineInServer($database);
+	$num_on = getNoSubbedPlayersOnlineInServer($id);
 	
-	$pExist = userid_exists($database, $player_id);
-	if(!$pExist)
-		$join = '<A HREF=joinserver.php?SERVER='.$id.'>[JOIN]</A>';
-	else
-		$join = '<A HREF=?CONNECT='.$id.'>[LOG IN]</A>';
+	$pExist = checkUserIdExist($id, $player_id);
+	if(!$pExist) {
+		$join = '<A HREF=joinserver.php?SERVER='.$id.'>[JOIN]</A>';		
+	}
+	else {
+		$join = '<A HREF=?CONNECT='.$id.'>[LOG IN]</A>';		
+	}
 	
 	
 	echo('<TR><TD><IMG SRC=/web/servericons/'.$icon.'></TD><TD><B>');
-	if($lastOnServer === $id)
+	if($lastOnServer === $id) {
 		echo('<FONT COLOR=GREEN>You were on this server last time:</FONT><BR>');
+	}
 	echo('SERVER: '.strtoupper($domain).'</B><BR>'.$desc.'</BR></TD>');
-	if(!$pExist)
-	{
+	if(!$pExist) {
 		echo('<TD>no existing profile</TD>');
 	}
 	else
 	{
-		$newUser = !getUserExistInExt($database, $player_id);
+		$newUser = !getUserExistInExt($id, $player_id);
 		
 		if(!$newUser){
-			$loginDate = getUserLoginDate($database, $player_id);
-			$questPoints = getUserQuestPoints($database, $player_id);
-			$totalLogins = getUserTotalLogins($database, $player_id);
-			$subbed = getUserSubbed($database, $player_id);
+			$loginDate = getUserLoginDate($id, $player_id);
+			$questPoints = getUserQuestPoints($id, $player_id);
+			$totalLogins = getUserTotalLogins($id, $player_id);
+			$subbed = getUserSubbed($id, $player_id);
 		}
 		else
 		{
@@ -194,7 +195,6 @@ for($i = 0; $i < count($server_list); $i++)
 	}
 	echo('<TD><B>'.$num_on.'<BR>players<BR>online<BR>now</B></TD><TD><B>'.$join.'</B></TD></TR><TR><TD COLSPAN=5><HR></TD></TR>');
 }
-
 ?>
 </TABLE><BR>Account Settings: <A HREF=/web/accountchange.php>CHANGE MY PASSWORD</A><BR>Refer other players and earn Game Credit!: <A HREF=/web/referral.php>REFERRAL PROGRAM</A><BR>
 <?php

@@ -2,8 +2,8 @@
 	{
 		"id": "game1",
 		"icon": "beta.gif", 
-		"database": "game1",
-		"site": "http://localhost:81", 
+		"internal_site": "http://localhost:12322/",
+		"external_site": "http://game1.islehorse.com/", 
 		"desc": " "
 	}
 ]

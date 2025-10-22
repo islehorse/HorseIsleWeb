@@ -1,13 +1,13 @@
 <?php
-include("../crosserver.php");
 include("../common.php");
+include("../api.php");
 $gcfg = get_cfg_game();
 
 $id = -1;
 if(isset($_GET['id'])){
 	$id = intval($_GET['id']);
 }
-$on = getPlayerList($gcfg["DB_NAME"]);
+$on = getPlayerList();
 $numbOn = count($on);
 $budsOn = 0;
 ?>
@@ -19,7 +19,7 @@ for($i = 0; $i < $numbOn; $i++){
 	$mod = $on[$i]['mod'];
 	$subbed = $on[$i]['subbed'];
 	$new = $on[$i]['new'];
-	$bud = checkUserBuddy($gcfg["DB_NAME"], $id ,$on[$i]['id']);
+	$bud = checkUserBuddy($id ,$on[$i]['id']);
 	
 	echo("<BR>");
 	if($bud) { echo('<B><FONT COLOR=BLUE>'); echo(htmlspecialchars($name)); echo('</FONT></B>'); $budsOn++; }

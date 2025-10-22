@@ -11,7 +11,7 @@
 		$server = htmlspecialchars($_POST['SERVER']);
 		$name = htmlspecialchars($_POST['PLAYERNAME']);
 		$serverObj = getServerById($server);
-		$serverDb = $serverObj['database'];
+		$serverId = $serverObj['id'];
 		
 		echo('<CENTER><B>Gift membership payments options</B></CENTER><BR>');
 		echo('<FONT COLOR=444444>Verifying existing playername and activity on server...<BR></FONT>');
@@ -32,7 +32,7 @@
 				echo('<FONT COLOR=RED>Server not found?</FONT>');
 				exit();
 			}
-			if(!userid_exists($serverDb, $userid))
+			if(!checkUserIdExist($serverId, $userid))
 			{
 				echo('<FONT COLOR=RED>Player: '.$name.' does not have an active account on Server '.$server.' Please make sure you know the EXACT server they play on!  Press BACK button.</FONT>');
 			}
@@ -40,11 +40,11 @@
 			{
 				echo('It appears they have an account on '.$server.'.<BR>');
 				
-				$newUser = !getUserExistInExt($serverDb, $userid);
+				$newUser = !getUserExistInExt($serverId, $userid);
 		
 				if(!$newUser){
-					$totalLogins = getUserTotalLogins($serverDb, $userid);
-					$subbedUntil = getUserSubTimeRemaining($serverDb, $userid);
+					$totalLogins = getUserTotalLogins($serverId, $userid);
+					$subbedUntil = getUserSubTimeRemaining($serverId, $userid);
 				}
 				else
 				{
@@ -63,7 +63,7 @@
 				}
 				
 				// put payment options here;
-				$gameServerDomain = parse_url($serverObj['site'], PHP_URL_HOST);
+				$gameServerDomain = parse_url($serverObj['external_site'], PHP_URL_HOST);
 				$pp_uri = $gameServerDomain . "/" . $cfg["PP_URI"];
 				echo('<HR>The following Payment Options are Available:<BR>
 <CENTER><TABLE WIDTH=500><TR><TD class=forumlist>
@@ -81,7 +81,7 @@
 <input type="hidden" name="amount" value="5.00">
 <input type="hidden" name="no_shipping" value="1">
 <input type="hidden" name="return" value="'.$host.'/web/paypalgiftpayment.php">
-<input type="hidden" name="notify_url" value="'.$serverObj['site'].'/web/paypalgateway.php">
+<input type="hidden" name="notify_url" value="'.$serverObj['external_site'].'/web/paypalgateway.php">
 <input type="hidden" name="no_note" value="1">
 <input type="hidden" name="currency_code" value="USD">
 <input type="hidden" name="lc" value="US">
@@ -107,7 +107,7 @@
 <input type="hidden" name="amount" value="40.00">
 <input type="hidden" name="no_shipping" value="1">
 <input type="hidden" name="return" value="'.$host.'/web/paypalgiftpayment.php">
-<input type="hidden" name="notify_url" value="'.$serverObj['site'].'/web/paypalgateway.php">
+<input type="hidden" name="notify_url" value="'.$serverObj['external_site'].'/web/paypalgateway.php">
 <input type="hidden" name="no_note" value="1">
 <input type="hidden" name="currency_code" value="USD">
 <input type="hidden" name="lc" value="US">
@@ -144,7 +144,7 @@ Select: <SELECT NAME=quantity>
 <input type="hidden" name="amount" value="1.00">
 <input type="hidden" name="no_shipping" value="1">
 <input type="hidden" name="return" value="'.$host.'/web/paypalgiftpayment.php">
-<input type="hidden" name="notify_url" value="'.$serverObj['site'].'/web/paypalgateway.php">
+<input type="hidden" name="notify_url" value="'.$serverObj['external_site'].'/web/paypalgateway.php">
 <input type="hidden" name="no_note" value="1">
 <input type="hidden" name="currency_code" value="USD">
 <input type="hidden" name="lc" value="US">
@@ -169,7 +169,7 @@ Select: <SELECT NAME=quantity>
 <input type="hidden" name="amount" value="8.00">
 <input type="hidden" name="no_shipping" value="1">
 <input type="hidden" name="return" value="'.$host.'/web/paypalgiftpayment.php">
-<input type="hidden" name="notify_url" value="'.$serverObj['site'].'/web/paypalgateway.php">
+<input type="hidden" name="notify_url" value="'.$serverObj['external_site'].'/web/paypalgateway.php">
 <input type="hidden" name="no_note" value="1">
 <input type="hidden" name="currency_code" value="USD">
 <input type="hidden" name="lc" value="US">
@@ -194,7 +194,7 @@ Select: <SELECT NAME=quantity>
 <input type="hidden" name="amount" value="30.00">
 <input type="hidden" name="no_shipping" value="1">
 <input type="hidden" name="return" value="'.$host.'/web/paypalgiftpayment.php">
-<input type="hidden" name="notify_url" value="'.$serverObj['site'].'/web/paypalgateway.php">
+<input type="hidden" name="notify_url" value="'.$serverObj['external_site'].'/web/paypalgateway.php">
 <input type="hidden" name="no_note" value="1">
 <input type="hidden" name="currency_code" value="USD">
 <input type="hidden" name="lc" value="US">

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("crosserver.php");
+include("api.php");
 include("header.php");
 $gcfg = get_cfg_game();
 ?>

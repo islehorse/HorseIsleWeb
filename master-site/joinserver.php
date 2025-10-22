@@ -1,7 +1,7 @@
 <?php
 session_start();
-include('crosserver.php');
 include('common.php');
+include('crosserver.php');
 
 if(isset($_GET['SERVER']))
 {
@@ -13,12 +13,19 @@ if(isset($_GET['SERVER']))
 		if(is_logged_in())
 		{
 			$playerId = $_SESSION['PLAYER_ID'];
-			if(!userid_exists($server['database'], $playerId))
+			if(!checkUserIdExist($server['id'], $playerId))
 			{				
-				createAccountOnServer($server['database']);
+				createAccountOnServer($server['id'],
+									  intval($_SESSION['PLAYER_ID']),
+									  $_SESSION['USERNAME'],
+									  $_SESSION['SEX'],
+									  $_SESSION['ADMIN'],
+									  $_SESSION['MOD'],
+									  $_SESSION['PASSWORD_HASH'],
+									  $_SESSION['SALT']);
 				
 				$hmac = GenHmacMessage((string)$playerId, "CrossSiteLogin");
-				$redirectUrl = $server['site'];
+				$redirectUrl = $server['external_site'];
 				
 				if(!endsWith($redirectUrl, '/'))
 					$redirectUrl .= '/';
@@ -31,12 +38,12 @@ if(isset($_GET['SERVER']))
 			}
 			else
 			{
-				echo('[Account]Joining the Server Failed.  Please try a different server,  or Try re-logging into the website.  If you continue to have troubles, you may need to enable Cookies in your browser.  Another possibility ONLY if you already have an account is logging directly into the server via: '.$server['site'].'<BR>ERROR: Account is already setup on this server. / <HR><B>If you already have an account on server, try logging in direct: <A HREF=\''.$server['site'].'\'>'.$server['site'].'</A></B>');
+				echo('[Account]Joining the Server Failed.  Please try a different server,  or Try re-logging into the website.  If you continue to have troubles, you may need to enable Cookies in your browser.  Another possibility ONLY if you already have an account is logging directly into the server via: '.$server['external_site'].'<BR>ERROR: Account is already setup on this server. / <HR><B>If you already have an account on server, try logging in direct: <A HREF=\''.$server['external_site'].'\'>'.$server['external_site'].'</A></B>');
 			}
 		}
 		else
 		{
-			echo('[Account]Joining the Server Failed.  Please try a different server,  or Try re-logging into the website.  If you continue to have troubles, you may need to enable Cookies in your browser.  Another possibility ONLY if you already have an account is logging directly into the server via: '.$server['site'].'/<BR>ERROR: Account Setup Failed.  Please be sure you are logged in. / <HR><B>If you already have an account on server, try logging in direct: <A HREF=\''.$server['site'].'/\'>'.$server['site'].'</A></B>');
+			echo('[Account]Joining the Server Failed.  Please try a different server,  or Try re-logging into the website.  If you continue to have troubles, you may need to enable Cookies in your browser.  Another possibility ONLY if you already have an account is logging directly into the server via: '.$server['external_site'].'/<BR>ERROR: Account Setup Failed.  Please be sure you are logged in. / <HR><B>If you already have an account on server, try logging in direct: <A HREF=\''.$server['external_site'].'/\'>'.$server['external_site'].'</A></B>');
 		}
 	}
 	else

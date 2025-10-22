@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-include("../crosserver.php");
+include("../api.php");
 include("../common.php");
 $gcfg = get_cfg_game();
 
@@ -12,7 +12,7 @@ if(!is_logged_in()){
 	exit();
 }
 
-$money = getUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+$money = getUserMoney($_SESSION['PLAYER_ID']);
 
 if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_GET['sign']))
 {
@@ -20,9 +20,9 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 	$targetUser = intval($_GET['to']);
 	$buyerId = intval($_SESSION['PLAYER_ID']);
 	
-	$subbed = getUserSubbed($gcfg["DB_NAME"], $targetUser);
-	$subbedUntil = getUserSubTimeRemaining($gcfg["DB_NAME"], $targetUser);
-	$moneyTarget = getUserMoney($gcfg["DB_NAME"], $targetUser);
+	$subbed = getUserSubbed($targetUser);
+	$subbedUntil = getUserSubTimeRemaining($targetUser);
+	$moneyTarget = getUserMoney( $targetUser);
 
 	if(!$subbed)
 		$subbedUntil = time();
@@ -47,9 +47,9 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
-				setUserSubbed($gcfg["DB_NAME"],$targetUser, true);
-				setUserSubbedUntil($gcfg["DB_NAME"], $targetUser, $subbedUntil + 2678400);
+				setUserMoney($_SESSION['PLAYER_ID'], $money-$cost);
+				setUserSubbed($targetUser, true);
+				setUserSubbedUntil($targetUser, $subbedUntil + 2678400);
 				
 				header("Location: ".$_GET["ret"]);
 			}
@@ -67,9 +67,9 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
-				setUserSubbed($gcfg["DB_NAME"], $targetUser, true);
-				setUserSubbedUntil($gcfg["DB_NAME"], $targetUser, $subbedUntil + 31622400);
+				setUserMoney($_SESSION['PLAYER_ID'], $money-$cost);
+				setUserSubbed($targetUser, true);
+				setUserSubbedUntil($targetUser, $subbedUntil + 31622400);
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -106,11 +106,11 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 				if($quantity == 250)
 					$amountGained = 31250000;
 
-				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
+				setUserMoney($_SESSION['PLAYER_ID'], $money-$cost);
 				$money -= $cost;
 				if($targetUser == $buyerId)
 					$moneyTarget -= $cost;
-				setUserMoney($gcfg["DB_NAME"], $targetUser, $moneyTarget+=$amountGained);	
+				setUserMoney($targetUser, $moneyTarget+=$amountGained);	
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -130,8 +130,8 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
-				addItemToPuchaseQueue($gcfg["DB_NAME"], $targetUser, 559, 1);
+				setUserMoney($_SESSION['PLAYER_ID'], $money-$cost);
+				addItemToPuchaseQueue($targetUser, 559, 1);
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -151,8 +151,8 @@ if(isset($_GET["go"], $_GET["qnt"], $_GET["itm"], $_GET['to'], $_GET["ret"], $_G
 			$cost = ($amount*$quantity)*$gcfg["EXHANGE_RATE"];
 			if($money >= $cost)
 			{
-				setUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID'], $money-$cost);
-				addItemToPuchaseQueue($gcfg["DB_NAME"], $targetUser, 559, 5);
+				setUserMoney($_SESSION['PLAYER_ID'], $money-$cost);
+				addItemToPuchaseQueue($targetUser, 559, 5);
 				
 				header("Location: ".$_GET["ret"]);
 				
@@ -193,7 +193,7 @@ if($hasIntl)
 
 $toUser = $_POST['custom'];
 $toUsername = "";
-if(!getUserExistInExt($gcfg["DB_NAME"], $toUser))
+if(!getUserExistInExt($toUser))
 {
 	include("header.php");
 	echo("Cannot buy for a user who does not exist on this server.");

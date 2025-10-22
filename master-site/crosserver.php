@@ -1,250 +1,109 @@
 <?php
+$server_list = get_servers();
 
-function getPlayerList($database)
+function getPlayerList(string $serverId)
 {
-	$connect = sql_connect($database);
-	$onlineUsers = mysqli_query($connect, "SELECT * FROM OnlineUsers");
-	
-	$users_on = [];
-		
-
-	while ($row = $onlineUsers->fetch_row()) {
-		$arr = [ ['id' => $row[0], 'admin' => ($row[1] == 'YES'), 'mod' => ($row[2] == 'YES'), 'subbed' => ($row[3] == 'YES'), 'new' => ($row[4] == 'YES')] ];
-		$users_on = array_merge($users_on, $arr);
-	}
-	
-	return $users_on;
+	return api_send($serverId, "player_list", []);
 }
 
-function checkUserBuddy($database, $yourId, $friendsId)
+function checkUserBuddy(string $serverId)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT COUNT(1) FROM BuddyList WHERE (Id=? AND IdFriend=?) OR (Id=? AND IdFriend=?)");
-	$stmt->bind_param("iiii", $yourId, $friendsId, $friendsId, $yourId);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	return $result->fetch_row()[0];
+	return api_send($serverId, "check_buddy", [$yourId, $friendsId]);
 }
 
-
-function getNoPlayersOnlineInServer($database)
+function getNoPlayersOnlineInServer(string $serverId)
 {
-	$connect = sql_connect($database);
-	$onlineUsers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers");
-	return $onlineUsers->fetch_row()[0];
+	return api_send($serverId, "get_num_players_online", []);
 }
 
-function getNoSubbedPlayersOnlineInServer($database)
+function getNoSubbedPlayersOnlineInServer(string $serverId)
 {
-	$connect = sql_connect($database);
-	$onlineSubscribers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Subscribed = 'YES'");
-	return $onlineSubscribers->fetch_row()[0];
+	return api_send($serverId, "get_num_subbed_players_online", []);
 }
 
-function getUserMoney($database, $id)
+function getUserMoney(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT Money FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]);
-	
+	return api_send($serverId, "get_user_money", [$id]);	
 }
 
-function setUserMoney($database, $id, $money)
+function setUserMoney(string $serverId, $id, $money)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("UPDATE UserExt SET Money=? WHERE Id=?");
-	$stmt->bind_param("ii", $money, $id);
-	$stmt->execute();
+	return api_send($serverId, "set_user_money", [$id, $money]);	
 }
 
-function setUserSubbed($database, $id, $subbed)
+function setUserSubbed(string $serverId, $id, $subbed)
 {
-	$subedV = "";
-	if($subbed)
-		$subedV = "YES";
-	else
-		$subbedV = "NO";
-	
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("UPDATE UserExt SET Subscriber=? WHERE Id=?");
-	$stmt->bind_param("si", $subedV, $id);
-	$stmt->execute();
+	return api_send($serverId, "set_user_subbed", [$id, $subbed]);	
 }
 
-function setUserSubbedUntil($database, $id, $subbedUntil)
+function setUserSubbedUntil(string $serverId, $id, $subbedUntil)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("UPDATE UserExt SET SubscribedUntil=? WHERE Id=?");
-	$stmt->bind_param("ii", $subbedUntil, $id);
-	$stmt->execute();
+	return api_send($serverId, "set_user_subbed_until", [$id, $subbedUntil]);
 }
 
-function getUserBankMoney($database, $id)
+function getUserBankMoney(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT BankBalance FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]);
-	
+	return api_send($serverId, "get_bank_money", [$id]);	
 }
 
-function getUserLoginDate($database, $id)
+function getUserLoginDate(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT LastLogin FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]);
-	
+	return api_send($serverId, "get_user_login_date", [$id]);
 }
 
-function getUserQuestPoints($database, $id)
+function getUserQuestPoints(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT QuestPoints FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]);
-	
+	return api_send($serverId, "get_user_quest_points", [$id]);
 }
 
-function getUserExistInExt($database, $id)
+function getUserExistInExt(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT COUNT(*) FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]) >= 1;
-	
+	return api_send($serverId, "get_user_in_userext", [$id]);	
 }
 
-function getUserTotalLogins($database, $id)
+function getUserTotalLogins(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT TotalLogins FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]);
-	
+	return api_send($serverId, "get_user_total_logins", [$id]);		
 }
 
-function getUserPlaytime($database, $id)
+function getUserPlaytime(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT FreeMinutes FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]);
-	
+	return api_send($serverId, "get_user_playtime", [$id]);			
 }
 
-
-function getUserSubTimeRemaining($database, $id)
+function getUserSubTimeRemaining(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT SubscribedUntil FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	
-	return intval($result->fetch_row()[0]);
-	
+	return api_send($serverId, "get_user_sub_time_remaining", [$id]);	
 }
 
-
-function addItemToPuchaseQueue($database, $playerId, $itemId, $itemCount)
+function addItemToPuchaseQueue(string $serverId, $playerId, $itemId, $itemCount)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("INSERT INTO ItemPurchaseQueue VALUES(?,?,?)");
-	$stmt->bind_param("iii", $playerId, $itemId, $itemCount);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	mysqli_close($connect);
+	return api_send($serverId, "add_item_to_purchase_queue", [$playerId, $itemId, $itemCount]);	
 }
 
-function getUserSubbed($database, $id)
+function getUserSubbed(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT Subscriber FROM UserExt WHERE Id=?");
-	$stmt->bind_param("i", $id);
-	$stmt->execute();
-	$result = $stmt->get_result();	
-	$subbed =  $result->fetch_row()[0] == "YES";
-	mysqli_close($connect);
-
-	return $subbed;
+	return api_send($serverId, "get_user_subbed", [$id]);	
 }
 
-function isUserOnline($database, $id)
+function isUserOnline(string $serverId, $id)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT COUNT(1) FROM OnlineUsers WHERE playerId=?");
-	$stmt->bind_param("i", $userid);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	$count = intval($result->fetch_row()[0]);
-	mysqli_close($connect);
-
-	return $count>0;	
+	return api_send($serverId, "is_user_online", [$id]);
 }
 
-function getNoModPlayersOnlineInServer($database)
+function getNoModPlayersOnlineInServer(string $serverId)
 {
-	$connect = sql_connect($database);
-	$onlineModerators = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Moderator = 'YES' OR Admin='YES'");
-	$num = $onlineModerators->fetch_row()[0];
-	mysqli_close($connect);
-	return $num;
+	return api_send($serverId, "get_num_mods_online", []);
 }
 
-
-function userid_exists(string $database, string $userid)
+function checkUserIdExist(string $serverId, int $userid)
 {
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("SELECT COUNT(1) FROM Users WHERE Id=?");
-	$stmt->bind_param("i", $userid);
-	$stmt->execute();
-	$result = $stmt->get_result();
-	$count = intval($result->fetch_row()[0]);
-	mysqli_close($connect);
-
-	return $count>0;
+	return api_send($serverId, "userid_exist", []);
 }
 
-function createAccountOnServer(string $database)
+function createAccountOnServer(string $serverId, int $id, string $username, string $sex, string $admin, string $mod, string $passhash, string $salt)
 {
-
-	$id = intval($_SESSION['PLAYER_ID']);
-	$username = $_SESSION['USERNAME'];
-	$sex = $_SESSION['SEX'];
-	$admin = $_SESSION['ADMIN'];
-	$mod = $_SESSION['MOD'];
-	$passhash = $_SESSION['PASSWORD_HASH'];
-	$salt = $_SESSION['SALT'];
-
-
-	$connect = sql_connect($database);
-	$stmt = $connect->prepare("INSERT INTO Users VALUES(?,?,?,?,?,?,?)"); 
-	$stmt->bind_param("issssss", $id, $username, $passhash, $salt, $sex, $admin, $mod);
-	$stmt->execute();
-	mysqli_close($connect);
+	return api_send($serverId, "create_account_on_server", [$id, $username, $sex, $admin, $mod, $passhash, $salt]);
 }
 
 # Global Functions
@@ -254,7 +113,7 @@ function getNoPlayersOnlineGlobal()
 	$playersOn = 0;
 	for($i = 0; $i < count($server_list); $i++)
 	{
-		$playersOn += getNoPlayersOnlineInServer($server_list[$i]['database']);
+		$playersOn += getNoPlayersOnlineInServer($server_list[$i]['id']);
 	}
 	return $playersOn;
 }
@@ -264,7 +123,7 @@ function userExistAny($playerId)
 	$server_list = get_servers();
 	for($i = 0; $i < count($server_list); $i++)
 	{
-		if(userid_exists($server_list[$i]['database'], $playerId)){
+		if(checkUserIdExist($server_list[$i]['id'], $playerId)){
 			return true;
 		}
 	}
@@ -278,7 +137,7 @@ function getNoSubbedPlayersOnlineGlobal()
 	$playersOn = 0;
 	for($i = 0; $i < count($server_list); $i++)
 	{
-		$playersOn += getNoSubbedPlayersOnlineInServer($server_list[$i]['database']);
+		$playersOn += getNoSubbedPlayersOnlineInServer($server_list[$i]['id']);
 	}
 	return $playersOn;
 }
@@ -289,7 +148,7 @@ function getNoModPlayersOnlineGlobal()
 	$playersOn = 0;
 	for($i = 0; $i < count($server_list); $i++)
 	{
-		$playersOn += getNoModPlayersOnlineInServer($server_list[$i]['database']);
+		$playersOn += getNoModPlayersOnlineInServer($server_list[$i]['id']);
 	}
 	return $playersOn;
 }

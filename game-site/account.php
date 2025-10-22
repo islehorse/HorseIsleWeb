@@ -1,7 +1,7 @@
 <?php
 session_start();
 include("common.php");
-include("crosserver.php");
+include("api.php");
 
 $cfg = get_cfg();
 $gcfg = get_cfg_game();
@@ -43,7 +43,7 @@ if(!is_logged_in() && isset($_GET["SLID"], $_GET["C"]))
 	$hmac = GenHmacMessage((string)$id, "CrossSiteLogin");
 	$hmacSent = bin2hex(base64_url_decode($code));
 	
-	if(hash_equals($hmacSent,$hmac) && userid_exists($gcfg["DB_NAME"], $id))
+	if(hash_equals($hmacSent,$hmac) && checkUserIdExist($id))
 	{		
 		$_SESSION['LOGGED_IN'] = "YES";
 		$_SESSION['PLAYER_ID'] = $id;
@@ -77,19 +77,19 @@ if(!is_logged_in())
 
 
 // Get account data
-$newUser = !getUserExistInExt($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+$newUser = !getUserExistInExt($_SESSION['PLAYER_ID']);
 
 if(!$newUser){
 
-	$money = getUserMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
-	$bankMoney = getUserBankMoney($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
-	$loginDate = getUserLoginDate($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
-	$questPoints = getUserQuestPoints($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
-	$totalLogins = getUserTotalLogins($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$money = getUserMoney($_SESSION['PLAYER_ID']);
+	$bankMoney = getUserBankMoney($_SESSION['PLAYER_ID']);
+	$loginDate = getUserLoginDate($_SESSION['PLAYER_ID']);
+	$questPoints = getUserQuestPoints($_SESSION['PLAYER_ID']);
+	$totalLogins = getUserTotalLogins($_SESSION['PLAYER_ID']);
 
-	$subbed = getUserSubbed($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
-	$subTime = getUserSubTimeRemaining($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
-	$playtime = getUserPlaytime($gcfg["DB_NAME"], $_SESSION['PLAYER_ID']);
+	$subbed = getUserSubbed($_SESSION['PLAYER_ID']);
+	$subTime = getUserSubTimeRemaining($_SESSION['PLAYER_ID']);
+	$playtime = getUserPlaytime($_SESSION['PLAYER_ID']);
 }
 else
 {
