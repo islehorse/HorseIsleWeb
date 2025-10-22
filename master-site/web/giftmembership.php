@@ -64,7 +64,16 @@
 				
 				// put payment options here;
 				$gameServerDomain = parse_url($serverObj['external_site'], PHP_URL_HOST);
-				$pp_uri = $gameServerDomain . "/" . $cfg["PP_URI"];
+				$ppuri = $cfg["PP_URI"];
+				
+				if(!startsWith($ppuri, "/") {
+					if(!endsWith($gameServerDomain, "/")) {
+						$ppuri .= "/";
+					}
+				}
+					
+				
+				$pp_uri = get_protocol() . $gameServerDomain . $cfg["PP_URI"];
 				echo('<HR>The following Payment Options are Available:<BR>
 <CENTER><TABLE WIDTH=500><TR><TD class=forumlist>
 
