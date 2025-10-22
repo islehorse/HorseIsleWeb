@@ -49,7 +49,10 @@ function getUserMoney($database, $id)
 	$stmt->execute();
 	$result = $stmt->get_result();
 	
-	return intval($result->fetch_row()[0]);
+	$rows = $result->fetch_row();
+	if($rows == NULL) return 0;
+	
+	return intval($rows[0]);
 	
 }
 
