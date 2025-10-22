@@ -170,7 +170,17 @@ function DetectFlashVer(reqMajorVer, reqMinorVer, reqRevision)
 <!-- 
 <?php
 $user = "";
-if(isset($_GET['USER'])) { $user = $_GET['USER']; };
+$swf = "horseisle.swf";
+
+if(isset($_GET['USER'])) { 
+	$user = $_GET['USER']; 
+};
+
+if(isset($gcfg["fix_offical_bugs"])) {
+	if($gcfg["fix_offical_bugs"] == "true") {
+		$swf = "horsisle_mapfix.swf"; 
+	}
+};
 
 echo("var hasRightVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
 if(hasRightVersion) {  // if we've detected an acceptable version
@@ -178,7 +188,7 @@ if(hasRightVersion) {  // if we've detected an acceptable version
     + 'width=\"790\" height=\"500\" id=\"horseisle\" name=\"horseisle\"'
     + 'codebase=\"http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab\">'
     + '<param name=\"movie\" value=\"horseisle.swf?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" /><param name=\"loop\" value=\"false\" /><param name=\"menu\" value=\"false\" /><param name=\"quality\" value=\"high\" /><param name=\"scale\" value=\"noscale\" /><param name=\"salign\" value=\"t\" /><param name=\"bgcolor\" value=\"#ffffff\" />'
-    + '<embed src=\"horseisle.swf?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" loop=\"false\" menu=\"false\" quality=\"high\" scale=\"noscale\" salign=\"t\" bgcolor=\"#ffffff\" '
+    + '<embed src=\"".$swf."?SERVER=".$gcfg["GAME_SERVER_EXTERNAL_IP"]."&PORT=".$gcfg["PORT"]."&USER=".htmlspecialchars($user, ENT_QUOTES)."&2158322\" loop=\"false\" menu=\"false\" quality=\"high\" scale=\"noscale\" salign=\"t\" bgcolor=\"#ffffff\" '
     + 'width=\"790\" height=\"500\" name=\"horseisle\" align=\"top\"'
     + 'play=\"true\"'	
     + 'loop=\"false\"'
