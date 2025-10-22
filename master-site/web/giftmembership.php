@@ -66,7 +66,7 @@
 				$gameServerDomain = parse_url($serverObj['external_site'], PHP_URL_HOST);
 				$ppuri = $cfg["PP_URI"];
 				
-				if(!startsWith($ppuri, "/") {
+				if(!startsWith($ppuri, "/")) {
 					if(!endsWith($gameServerDomain, "/")) {
 						$ppuri .= "/";
 					}
