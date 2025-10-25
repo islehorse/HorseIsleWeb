@@ -3,7 +3,7 @@ include ("../common.php");
 include ("../web/header.php");
 
 if(file_exists(CFG_FILE)) {
-	header("Location: /");
+	header("Location: /setupservers.php");
 	exit();
 }
 
@@ -28,8 +28,7 @@ $settings = array(
 
 if(sizeof($_POST) > 0) {
 	gen_cfg_web(CFG_FILE, $settings);
-	echo("Written config file.");
-	include ("../web/footer.php");
+	header("Location: /setupservers.php");
 	exit();
 }
 

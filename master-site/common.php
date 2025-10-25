@@ -32,10 +32,9 @@ function handle_cfg_line(array &$cfg, string $line) {
 	if(sizeof($kvp) != 2) return;
 	$cfg[strtoupper($kvp[0])] = str_replace("\n", "", str_replace("\r", "", $kvp[1]));
 }
-function gen_servers(string $path) {
+function gen_servers(string $path, array $data) {
 	if(!file_exists($path)) {
-		$file_data = file_get_contents("web/base_servers.json");
-		file_put_contents($path, $file_data);
+		file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 	}
 }
 
@@ -76,7 +75,10 @@ function gen_cfg_web(string $path, array $data) {
 }
 
 function get_servers() {
-	gen_servers(SRV_FILE);
+	if(!file_exists(SRV_FILE)) {
+		header("Location: /dev/setupservers.php");
+		exit();
+	}
 	$data = json_decode(file_get_contents(SRV_FILE), true);
 	return $data;
 }

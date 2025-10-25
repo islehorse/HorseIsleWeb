@@ -1,9 +1,0 @@
-[ 
-	{
-		"id": "game1",
-		"icon": "beta.gif", 
-		"internal_site": "http://gameweb:80/",
-		"external_site": "http://localhost:12322/", 
-		"desc": " "
-	}
-]
