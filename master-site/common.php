@@ -1,10 +1,10 @@
 <?php
 $host = $_SERVER['HTTP_HOST'];
 
-$cfgDir = getenv("HISP_CONFIG_DIR");
-$cfgFile = getenv("HISP_CONF_FILE");
-$serverFile = getenv("HISP_SERVER_FILE");
-$gameCfgFile = getenv("HISP_GAME_CFG_FILE");
+$cfgDir = getenv("WEB_CONFIG_DIR");
+$cfgFile = getenv("WEB_CONF_FILE");
+$serverFile = getenv("WEB_SERVER_FILE");
+$gameCfgFile = getenv("WEB_GAME_CFG_FILE");
 
 if($cfgFile == null)
 	$cfgFile = "web.cfg";
@@ -49,13 +49,29 @@ function gen_game_cfg(string $path) {
 	}
 }
 
-function gen_cfg(string $path) {
+function gen_cfg_web(string $path, array $data) {
+	
 	if(!file_exists($path)) {
-		$file_data = file_get_contents("web/base_web.cfg");
+	
+		$str = "";
+		for($i = 0; $i < count($data); $i++) {
+			$setting = $data[$i];
+			if(gettype($setting) == "string") {
+				$str .= "# ".$setting . "\n";
+			}
+			else {
+				$str .= $setting["name"] . "=" . strval($setting["value"]) . "\n";
+			}
+			
+		}
 		
-		$file_data = str_replace("!!NOTSET!!", bin2hex(random_bytes(0x14)), $file_data);
 		
-		file_put_contents($path, $file_data);		
+		$str .= "\n# A shared secret used for internal api communication (Auto Generated)\n";
+		$str .= "# Never share this with anyone\n";
+		
+		$str .= "HMAC_SECRET" . "=". bin2hex(random_bytes(0x14));
+		
+		file_put_contents($path, $str);
 	}
 }
 
@@ -65,6 +81,29 @@ function get_servers() {
 	return $data;
 }
 
+function get_default_value(string $name, string $default, string $description, string $type="text") {
+	$value = $default;
+	
+	if(!is_set_via_cfg($name)) {
+		$value = getenv("WEB_". strtoupper($name));
+	}
+	if(isset($_POST[$name])) {
+		$value = $_POST[$name];
+		if($value == "on")
+			$value = "true";
+	}
+	
+	
+	return array("name" => $name, "value" => $value, "desc" => $description, "type" => $type);
+}
+
+
+function is_set_via_cfg(string $name) {
+	if(getenv("WEB_" . strtoupper($name)) !== null) {
+		return true;
+	}
+	return false;
+}
 
 function parse_cfg(string $path) {
 	$fd = fopen($path, "rb");
@@ -93,7 +132,10 @@ function parse_cfg(string $path) {
 
 function get_cfg() {
 	$path = CFG_FILE;
-	gen_cfg($path);
+	if(!file_exists($path)) {
+		header("Location: /dev/setup.php");
+		exit();
+	}
 	return parse_cfg($path);
 }
 

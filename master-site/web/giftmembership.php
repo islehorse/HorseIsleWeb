@@ -71,7 +71,6 @@
 						$ppuri .= "/";
 					}
 				}
-					
 				
 				$pp_uri = get_protocol() . $gameServerDomain . $cfg["PP_URI"];
 				echo('<HR>The following Payment Options are Available:<BR>
