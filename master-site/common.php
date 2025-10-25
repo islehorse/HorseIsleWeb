@@ -41,9 +41,7 @@ function gen_servers(string $path, array $data) {
 function gen_game_cfg(string $path) {
 	if(!file_exists($path)) {
 		$file_data = file_get_contents("web/base_game.cfg");
-		
 		$file_data = str_replace("!!NOTSET!!", bin2hex(random_bytes(0x20)), $file_data);
-		
 		file_put_contents($path, $file_data);
 	}
 }
@@ -76,7 +74,7 @@ function gen_cfg_web(string $path, array $data) {
 
 function get_servers() {
 	if(!file_exists(SRV_FILE)) {
-		header("Location: /dev/setupservers.php");
+		header("Location: /dev/setup.php");
 		exit();
 	}
 	$data = json_decode(file_get_contents(SRV_FILE), true);
