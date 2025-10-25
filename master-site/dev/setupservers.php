@@ -1,6 +1,5 @@
 <?php 
 include ("../common.php");
-include ("../web/header.php");
 
 if(file_exists(SRV_FILE)) {
 	header("Location: /");
@@ -40,7 +39,7 @@ if(sizeof($_POST) > 0) {
 	exit();
 }
 
-
+include ("../web/header.php");
 ?>
 <script>
 	window.server_count = 0;
@@ -81,7 +80,7 @@ if(sizeof($_POST) > 0) {
 	
 ?>
 </div>
-<input type="submit" value="Write servers.json"/>
+<input type="submit" value="Confirm & write servers.json"/>
 </form>
 <button onclick="add_server()">Add server</button>
 <button onclick="remove_server()">Remove server</button>

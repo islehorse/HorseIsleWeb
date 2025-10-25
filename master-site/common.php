@@ -1,4 +1,5 @@
 <?php
+define("IS_GAME", false);
 $host = $_SERVER['HTTP_HOST'];
 
 $cfgDir = getenv("WEB_CONFIG_DIR");
@@ -26,12 +27,36 @@ define("CFG_DIR", $cfgDir);
 define("CFG_FILE", $cfgDir . "/" . $cfgFile);
 define("CFG_FILE_GAME", $cfgDir . "/" . $gameCfgFile);
 define("SRV_FILE", $cfgDir . "/" . $serverFile);
+define("ENV_PREFIX", "WEB_");
+
+
+if(!startsWith($_SERVER['REQUEST_URI'], "/dev")) {
+	if(IS_GAME && !file_exists(CFG_FILE)) {
+		echo("Please configure the main site first");
+		exit();
+	}
+	if(!IS_GAME && !file_exists(CFG_FILE)) {
+		header("Location: /dev/setup.php");
+		exit();
+	}
+	if(!IS_GAME && !file_exists(SRV_FILE)) {
+		header("Location: /dev/setupservers.php");
+		exit();
+	}
+	if(IS_GAME && !file_exists(CFG_FILE_GAME)) {
+		header("Location: /dev/setup.php");
+		exit();
+	}
+}
+
+
 
 function handle_cfg_line(array &$cfg, string $line) {
 	$kvp = explode("=", $line);
 	if(sizeof($kvp) != 2) return;
 	$cfg[strtoupper($kvp[0])] = str_replace("\n", "", str_replace("\r", "", $kvp[1]));
 }
+
 function gen_servers(string $path, array $data) {
 	if(!file_exists($path)) {
 		file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -44,6 +69,10 @@ function gen_game_cfg(string $path) {
 		$file_data = str_replace("!!NOTSET!!", bin2hex(random_bytes(0x20)), $file_data);
 		file_put_contents($path, $file_data);
 	}
+}
+
+function is_game_server() {
+	return IS_GAME;
 }
 
 function gen_cfg_web(string $path, array $data) {
@@ -73,10 +102,6 @@ function gen_cfg_web(string $path, array $data) {
 }
 
 function get_servers() {
-	if(!file_exists(SRV_FILE)) {
-		header("Location: /dev/setup.php");
-		exit();
-	}
 	$data = json_decode(file_get_contents(SRV_FILE), true);
 	return $data;
 }
@@ -85,7 +110,7 @@ function get_default_value(string $name, string $default, string $description, s
 	$value = $default;
 	
 	if(!is_set_via_cfg($name)) {
-		$value = getenv("WEB_". strtoupper($name));
+		$value = $_ENV[ENV_PREFIX . strtoupper($name)];
 	}
 	if(isset($_POST[$name])) {
 		$value = $_POST[$name];
@@ -99,15 +124,14 @@ function get_default_value(string $name, string $default, string $description, s
 
 
 function is_set_via_cfg(string $name) {
-	if(getenv("WEB_" . strtoupper($name)) !== null) {
-		return true;
+	if(isset($_ENV[ENV_PREFIX . strtoupper($name)])) {
+		return false;
 	}
-	return false;
+	return true;
 }
 
 function parse_cfg(string $path) {
 	$fd = fopen($path, "rb");
-	$prefix = "WEB_";
 	
 	$cfg = array();
 	
@@ -120,8 +144,8 @@ function parse_cfg(string $path) {
 	}
 	
 	foreach ($_ENV as $key => $value) {
-		if(startsWith(strtoupper($key), $prefix)){
-			$ekey = substr($key, strlen($prefix));
+		if(startsWith(strtoupper($key), ENV_PREFIX)){
+			$ekey = substr($key, strlen(ENV_PREFIX));
 			$cfg[$ekey] = $value;
 		}
 	}
@@ -131,12 +155,7 @@ function parse_cfg(string $path) {
 }
 
 function get_cfg() {
-	$path = CFG_FILE;
-	if(!file_exists($path)) {
-		header("Location: /dev/setup.php");
-		exit();
-	}
-	return parse_cfg($path);
+	return parse_cfg(CFG_FILE);
 }
 
 function get_cfg_game() {
@@ -180,14 +199,14 @@ function is_logged_in()
 }
 
 
-function sql_connect(?string $override_db = null) {
+function sql_connect() {
 	$cfg = get_cfg();
 	
-	$db = $cfg["DB_NAME"];
-	if($override_db != null)
-		$db = $override_db;
+	if(is_game_server()) {
+		$cfg = get_cfg_game();
+	}
 	
-	$connect = mysqli_connect($cfg["DB_IP"], $cfg["DB_USERNAME"], $cfg["DB_PASSWORD"],$db) or die("Unable to connect to database");
+	$connect = mysqli_connect($cfg["DB_IP"], $cfg["DB_USERNAME"], $cfg["DB_PASSWORD"], $cfg["DB_NAME"]) or die("Unable to connect to database");
 	return $connect;
 }
 
@@ -734,8 +753,5 @@ function getServerById(string $id)
 	}
 	return null;
 }
-
-
-
 
 ?>

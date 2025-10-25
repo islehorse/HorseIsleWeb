@@ -1,9 +1,8 @@
 <?php 
 include ("../common.php");
-include ("../web/header.php");
 
 if(file_exists(CFG_FILE)) {
-	header("Location: /setupservers.php");
+	header("Location: /dev/setupservers.php");
 	exit();
 }
 
@@ -28,11 +27,11 @@ $settings = array(
 
 if(sizeof($_POST) > 0) {
 	gen_cfg_web(CFG_FILE, $settings);
-	header("Location: /setupservers.php");
+	header("Location: /dev/setupservers.php");
 	exit();
 }
 
-
+include ("../web/header.php");
 ?>
 
 <form method="post" action="/dev/setup.php">
@@ -45,7 +44,7 @@ if(sizeof($_POST) > 0) {
 		}
 		else {
 			if(!is_set_via_cfg($setting["name"])) {
-				echo("<p>". $setting["desc"] . " is managed by environment variables.</p>");
+				echo("<p><b>". $setting["desc"] . "</b> is managed by environment variables.</p>");
 			}
 			else {
 				echo("<p><b>" . $setting["desc"] . "</b>: <input type='".$setting["type"]."' name='".$setting["name"]."' value='".$setting["value"]."'/></p>");
@@ -55,7 +54,7 @@ if(sizeof($_POST) > 0) {
 	}
 	
 ?>
-<input type="submit" value="Write web.cfg"/>
+<input type="submit" value="Confirm & write web.cfg"/>
 </form>
 
 <hr>
