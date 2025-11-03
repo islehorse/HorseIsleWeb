@@ -240,7 +240,11 @@ h+=60;//h += 96;
 	{
 		echo("NOT SUBSCRIBED</FONT><BR>(You have not yet subscribed)</FONT> "); 
 	} 
-?>(<A HREF=web/reasonstosubscribe.php>Subscription Benefits</A>)
+?>(<A HREF=web/reasonstosubscribe.php>Subscription Benefits</A>)<?php 
+if($gcfg["ENABLE_EOL_FEATURES"] == "true") {
+	echo("<BR><FONT SIZE=+1><FONT COLOR=RED>NOTE:</FONT> HI1 Is End-Of-Life. Server may permanently shut down at any time. We do NOT recommend buying anything.  We left the option to purchase in case you need to for final enjoyment of game. No refunds.</FONT>");
+}
+?>
 </TD></TR><TR><TD class=forumlist>
 <TABLE WIDTH=100%>
 <TR><TD><B>BUY 1 Month Membership <FONT COLOR=GREEN>$5.00</FONT>usd</B> <I><FONT SIZE=-1>(adds 31 days membership time to the account that you are currently logged in with.) Non-refundable.</FONT></I></TD><TD>
@@ -267,97 +271,101 @@ h+=60;//h += 96;
 
 </TD></TR>
 
-<TR><TD class=forumlist>
-<TABLE WIDTH=100%><TR>
-<TD><B>BUY Full Year Membership <FONT COLOR=GREEN>$40.00</FONT>usd</B> <I><FONT SIZE=-1>(adds 366 days membership time to the account you are logged in with. saves $20.00 off monthly subscription) Non-refundable.</FONT></I></TD><TD>
-<form action="<?php echo($cfg["PP_URI"]); ?>" method="post">
-<input type="hidden" name="cmd" value="_xclick">
-<input type="hidden" name="business" value="paypal@horseisle.com">
-<input type="hidden" name="undefined_quantity" value="1">
-<input type="hidden" name="item_name" value="Full Year Horse Isle Membership-on <?php echo($_SERVER["HTTP_HOST"]); ?>">
-<input type="hidden" name="item_number" value="<?php echo(htmlspecialchars($_SESSION['PLAYER_ID'])); ?>">
-<input type="hidden" name="custom" value="<?php echo(htmlspecialchars($_SESSION['PLAYER_ID'])); ?>">
-<input type="hidden" name="amount" value="40.00">
-<input type="hidden" name="no_shipping" value="1">
-<input type="hidden" name="return" value="http://<?php echo($_SERVER["HTTP_HOST"]); ?>/web/paypalpayment.php">
-<input type="hidden" name="notify_url" value="http://<?php echo($_SERVER["HTTP_HOST"]); ?>/web/paypalgateway.php">
-<input type="hidden" name="no_note" value="1">
-<input type="hidden" name="currency_code" value="USD">
-<input type="hidden" name="lc" value="US">
-<input type="hidden" name="bn" value="PP-BuyNowBF">
-<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif" border="0"
- name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
-</TD></TR></TABLE>
+<?php 
+if($gcfg["ENABLE_EOL_FEATURES"] != "true") {
+	echo('<TR><TD class=forumlist>
+	<TABLE WIDTH=100%><TR>
+	<TD><B>BUY Full Year Membership <FONT COLOR=GREEN>$40.00</FONT>usd</B> <I><FONT SIZE=-1>(adds 366 days membership time to the account you are logged in with. saves $20.00 off monthly subscription) Non-refundable.</FONT></I></TD><TD>
+	<form action="'.$cfg["PP_URI"].'" method="post">
+	<input type="hidden" name="cmd" value="_xclick">
+	<input type="hidden" name="business" value="paypal@horseisle.com">
+	<input type="hidden" name="undefined_quantity" value="1">
+	<input type="hidden" name="item_name" value="Full Year Horse Isle Membership-on '.$_SERVER["HTTP_HOST"].'">
+	<input type="hidden" name="item_number" value="'.htmlspecialchars($_SESSION['PLAYER_ID']).'">
+	<input type="hidden" name="custom" value="'.htmlspecialchars($_SESSION['PLAYER_ID']).'">
+	<input type="hidden" name="amount" value="40.00">
+	<input type="hidden" name="no_shipping" value="1">
+	<input type="hidden" name="return" value="http://'.$_SERVER["HTTP_HOST"].'/web/paypalpayment.php">
+	<input type="hidden" name="notify_url" value="http://'.$_SERVER["HTTP_HOST"].'/web/paypalgateway.php">
+	<input type="hidden" name="no_note" value="1">
+	<input type="hidden" name="currency_code" value="USD">
+	<input type="hidden" name="lc" value="US">
+	<input type="hidden" name="bn" value="PP-BuyNowBF">
+	<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif" border="0"
+	 name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!">
+	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+	</form>
+	</TD></TR></TABLE>
 
 
-<!--
-<TR><TD class=forumlist>
+	<!--
+	<TR><TD class=forumlist>
 
-<TABLE WIDTH=100%><TR>
-<TD><B>BUY 100k Horse Isle Currency <FONT COLOR=GREEN>$1.00</FONT>usd</B> <I><FONT SIZE=-1>(each one you buy gives your account $10,000 Horse Isle currency for use in the game.) Non-refundable.</FONT></I></TD><TD>
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_xclick">
-<input type="hidden" name="business" value="paypal@horseisle.com">
-<input type="hidden" name="undefined_quantity" value="1">
-<input type="hidden" name="item_name" value="100k Horse Isle Money-on pinto.horseisle.com">
-<input type="hidden" name="item_number" value="<?php echo(htmlspecialchars($_SESSION['PLAYER_ID'])); ?>">
-<input type="hidden" name="custom" value="<?php echo(htmlspecialchars($_SESSION['PLAYER_ID'])); ?>">
-<input type="hidden" name="amount" value="1.00">
-<input type="hidden" name="no_shipping" value="1">
-<input type="hidden" name="return" value="http://pinto.horseisle.com/web/paypalpayment.php">
-<input type="hidden" name="notify_url" value="http://pinto.horseisle.com/web/paypalgateway.php">
-<input type="hidden" name="no_note" value="1">
-<input type="hidden" name="currency_code" value="USD">
-<input type="hidden" name="lc" value="US">
-<input type="hidden" name="bn" value="PP-BuyNowBF">
-<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif" border="0"
- name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
-</TD></TR></TABLE>
+	<TABLE WIDTH=100%><TR>
+	<TD><B>BUY 100k Horse Isle Currency <FONT COLOR=GREEN>$1.00</FONT>usd</B> <I><FONT SIZE=-1>(each one you buy gives your account $10,000 Horse Isle currency for use in the game.) Non-refundable.</FONT></I></TD><TD>
+	<form action="'.$cfg["PP_URI"].'" method="post">
+	<input type="hidden" name="cmd" value="_xclick">
+	<input type="hidden" name="business" value="paypal@horseisle.com">
+	<input type="hidden" name="undefined_quantity" value="1">
+	<input type="hidden" name="item_name" value="100k Horse Isle Money-on '.$_SERVER["HTTP_HOST"].'">
+	<input type="hidden" name="item_number" value="'.htmlspecialchars($_SESSION['PLAYER_ID']).'">
+	<input type="hidden" name="custom" value="'.htmlspecialchars($_SESSION['PLAYER_ID']).'">
+	<input type="hidden" name="amount" value="1.00">
+	<input type="hidden" name="no_shipping" value="1">
+	<input type="hidden" name="return" value="http://pinto.horseisle.com/web/paypalpayment.php">
+	<input type="hidden" name="notify_url" value="http://pinto.horseisle.com/web/paypalgateway.php">
+	<input type="hidden" name="no_note" value="1">
+	<input type="hidden" name="currency_code" value="USD">
+	<input type="hidden" name="lc" value="US">
+	<input type="hidden" name="bn" value="PP-BuyNowBF">
+	<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif" border="0"
+	 name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!">
+	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+	</form>
+	</TD></TR></TABLE>
 
-</TD><TR>-->
+	</TD><TR>-->
 
-<TR><TD class=forumlist>
+	<TR><TD class=forumlist>
 
 
 
-<TABLE WIDTH=100%><TR>
-<form action="<?php echo($cfg["PP_URI"]); ?>" method="post">
-<TD><B>BUY $100,000 Horse Isle Currency per <FONT COLOR=GREEN>$1.00</FONT>usd</B><BR>
-Select: <SELECT NAME=quantity>
-<!-<OPTION VALUE=1>$10,000 Horse Isle for $1.00 USD->
-<OPTION VALUE=2>$200,000 Horse Isle for $2.00 USD
-<OPTION VALUE=3>$300,000 Horse Isle for $3.00 USD
-<OPTION VALUE=4>$400,000 Horse Isle for $4.00 USD
-<OPTION VALUE=5>$550,000 Horse Isle for $5.00 USD (10% bonus)
-<OPTION SELECTED VALUE=10>$1,100,000 Horse Isle for $10.00 USD (10% bonus)
-<OPTION VALUE=20>$2,300,000 Horse Isle for $20.00 USD (15% bonus)
-<OPTION VALUE=50>$5,750,000 Horse Isle for $50.00 USD (15% bonus)
-<OPTION VALUE=100>$12,000,000 Horse Isle for $100.00 USD (20% bonus)
-<OPTION VALUE=250>$31,250,000 Horse Isle for $250.00 USD (25% bonus)
-</SELECT><BR>
- <I><FONT SIZE=-1>(Gives your account Horse Isle currency for use in the game.  You can earn Horse Isle money by playing the game.  This is not required.) Non-refundable.</FONT></I></TD><TD>
-<input type="hidden" name="cmd" value="_xclick">
-<input type="hidden" name="business" value="paypal@horseisle.com">
-<input type="hidden" name="item_name" value="100k Horse Isle Money-on <?php echo($_SERVER["HTTP_HOST"]); ?>">
-<input type="hidden" name="item_number" value="<?php echo(htmlspecialchars($_SESSION['PLAYER_ID'])); ?>">
-<input type="hidden" name="custom" value="<?php echo(htmlspecialchars($_SESSION['PLAYER_ID'])); ?>">
-<input type="hidden" name="amount" value="1.00">
-<input type="hidden" name="no_shipping" value="1">
-<input type="hidden" name="return" value="http://<?php echo($_SERVER["HTTP_HOST"]); ?>/web/paypalpayment.php">
-<input type="hidden" name="notify_url" value="http://<?php echo($_SERVER["HTTP_HOST"]); ?>/web/paypalgateway.php">
-<input type="hidden" name="no_note" value="1">
-<input type="hidden" name="currency_code" value="USD">
-<input type="hidden" name="lc" value="US">
-<input type="hidden" name="bn" value="PP-BuyNowBF">
-<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif" border="0"
- name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
-</TD></TR></TABLE>
+	<TABLE WIDTH=100%><TR>
+	<form action="'.$cfg["PP_URI"].'" method="post">
+	<TD><B>BUY $100,000 Horse Isle Currency per <FONT COLOR=GREEN>$1.00</FONT>usd</B><BR>
+	Select: <SELECT NAME=quantity>
+	<!-<OPTION VALUE=1>$10,000 Horse Isle for $1.00 USD->
+	<OPTION VALUE=2>$200,000 Horse Isle for $2.00 USD
+	<OPTION VALUE=3>$300,000 Horse Isle for $3.00 USD
+	<OPTION VALUE=4>$400,000 Horse Isle for $4.00 USD
+	<OPTION VALUE=5>$550,000 Horse Isle for $5.00 USD (10% bonus)
+	<OPTION SELECTED VALUE=10>$1,100,000 Horse Isle for $10.00 USD (10% bonus)
+	<OPTION VALUE=20>$2,300,000 Horse Isle for $20.00 USD (15% bonus)
+	<OPTION VALUE=50>$5,750,000 Horse Isle for $50.00 USD (15% bonus)
+	<OPTION VALUE=100>$12,000,000 Horse Isle for $100.00 USD (20% bonus)
+	<OPTION VALUE=250>$31,250,000 Horse Isle for $250.00 USD (25% bonus)
+	</SELECT><BR>
+	 <I><FONT SIZE=-1>(Gives your account Horse Isle currency for use in the game.  You can earn Horse Isle money by playing the game.  This is not required.) Non-refundable.</FONT></I></TD><TD>
+	<input type="hidden" name="cmd" value="_xclick">
+	<input type="hidden" name="business" value="paypal@horseisle.com">
+	<input type="hidden" name="item_name" value="100k Horse Isle Money-on '.$_SERVER["HTTP_HOST"].'">
+	<input type="hidden" name="item_number" value="'.htmlspecialchars($_SESSION['PLAYER_ID']).'">
+	<input type="hidden" name="custom" value="'.htmlspecialchars($_SESSION['PLAYER_ID']).'">
+	<input type="hidden" name="amount" value="1.00">
+	<input type="hidden" name="no_shipping" value="1">
+	<input type="hidden" name="return" value="http://'.$_SERVER["HTTP_HOST"].'/web/paypalpayment.php">
+	<input type="hidden" name="notify_url" value="http://'.$_SERVER["HTTP_HOST"].'/web/paypalgateway.php">
+	<input type="hidden" name="no_note" value="1">
+	<input type="hidden" name="currency_code" value="USD">
+	<input type="hidden" name="lc" value="US">
+	<input type="hidden" name="bn" value="PP-BuyNowBF">
+	<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but02.gif" border="0"
+	 name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!">
+	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+	</form>
+	</TD></TR></TABLE>');
+}
+?>
 
 </TD></TR><TR><TD class=forumlist>
 <TABLE WIDTH=100%>

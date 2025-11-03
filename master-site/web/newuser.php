@@ -146,7 +146,14 @@ else if(isset( $_POST['user'],$_POST['pass1'],$_POST['pass2'],$_POST['sex'],$_PO
 		array_push($problems, "You must select a Password Recovery Question.");
 	if($reset_answer == "")
 		array_push($problems, "You must Answer the Password Recovery Question.");
-		
+	
+	// TODO: figure out all passwords that trigger this
+	//if(password == "password1")
+	//	array_push($problems, "Password is way to Simple/Common.");
+
+	// if(password == "password1") 
+	// 	array_push($problems, "Email account has been banned.");
+	
 	if($country == "")
 		array_push($problems, "Please enter your country.");
 	

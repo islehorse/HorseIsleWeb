@@ -1,6 +1,11 @@
 <?php
   include("common.php");
   $gcfg = get_cfg_game();
+  $cfg = get_cfg();
+
+ //if($gcfg["ENABLE_EOL_FEATURES"] == "true"){
+ //	  header("Location: http://".str_replace("/", "", $cfg["MAIN_DOMAIN"])."/flashworkaround.php");
+ //}
 ?>
 <html lang="en">
 <head>
