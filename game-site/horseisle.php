@@ -161,7 +161,7 @@ function DetectFlashVer(reqMajorVer, reqMinorVer, reqRevision)
 // -->
 </script>
 </head>
-<body bgcolor="#A797A7" MARGINWIDTH=0 MARGINHEIGHT=0 LEFTMARGIN=0 TOPMARGIN=0 onLoad="">
+<body data-ruffle-optout=1 bgcolor="#A797A7" MARGINWIDTH=0 MARGINHEIGHT=0 LEFTMARGIN=0 TOPMARGIN=0 onLoad="">
 <!--url's used in the movie-->
 <!--text used in the movie-->
 <CENTER>
@@ -171,6 +171,18 @@ function DetectFlashVer(reqMajorVer, reqMinorVer, reqRevision)
 <p align="left"><font face="Arial" size="9" color="#000000" letterSpacing="0.000000" kerning="1"><b>FPS</b></font></p>
 <p align="center"><font face="Times New Roman" size="18" color="#000000" letterSpacing="0.000000" kerning="1"><b>CONNECTION TO SERVER LOST:</b></font></p><p align="center"></p><p align="center"><font face="Times New Roman" size="18" color="#000000" letterSpacing="0.000000" kerning="1"><b> Either your Internet connection is down, or the <sbr />server is restarting or possibly down. &nbsp;</b></font></p><p align="center"></p><p align="center"><font face="Times New Roman" size="18" color="#000000" letterSpacing="0.000000" kerning="1"><b>Please try again shortly.</b></font></p><p align="center"></p><p align="center"><font face="Times New Roman" size="18" color="#000066" letterSpacing="0.000000" kerning="1"><a href="http://hi1.horseisle.com/" target = "_self"><b>HI1.HORSEISLE.COM</b></a></font></p>
 -->
+<?php
+$ruffle_enabled = false;
+
+if(isset($gcfg["ENABLE_WEBSOCKET"])) {
+	if($gcfg["ENABLE_WEBSOCKET"] == "true") {
+		$ruffle_enabled = true;
+		if(isset($_GET["ruffle"])){
+			echo('<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>');			
+		}
+	}
+}
+?>
 <script language="JavaScript" type="text/javascript">
 <!-- 
 <?php
@@ -186,6 +198,29 @@ if(isset($gcfg["FIX_OFFICAL_BUGS"])) {
 		$swf = "horseisle_mapfix.swf"; 
 	}
 };
+
+
+if($ruffle_enabled && isset($_GET["ruffle"])) {
+	echo('
+	window.RufflePlayer.config = {
+	  autoplay: "on",
+	  socketProxy: [
+		{
+		  host: "'.$gcfg["GAME_SERVER_EXTERNAL_IP"].'",
+		  port: '.$gcfg["PORT"].' ,
+		  proxyUrl: "'); 
+			if(!isset($gcfg["WEBSOCKET_URL_OVERRIDE"])) {
+				echo("ws://" . $gcfg["GAME_SERVER_EXTERNAL_IP"] . ":" . $gcfg["PORT"]); 
+			}
+			else {
+				echo($gcfg["WEBSOCKET_URL_OVERRIDE"]);
+			}
+	echo('", 
+		}
+	  ]
+	};
+');
+}
 
 echo("var hasRightVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
 if(hasRightVersion) {  // if we've detected an acceptable version
@@ -206,7 +241,7 @@ if(hasRightVersion) {  // if we've detected an acceptable version
 ?>
     document.write(oeTags);   // embed the flash movie
   } else {  // flash is too old or we can't detect the plugin
-    var alternateContent = 'Alternate HTML content should be placed here.'
+    <?php if($ruffle_enabled) echo("if(location.search[0] == undefined) { location.search += '?ruffle=1'; } else { location.search += '&ruffle=1'; };"); ?>var alternateContent = 'Alternate HTML content should be placed here.'
   	+ 'This content requires the Macromedia Flash Player.'
    	+ '<a href=http://www.macromedia.com/go/getflash/>Get Flash</a>';
     document.write(alternateContent);  // insert non-flash content
