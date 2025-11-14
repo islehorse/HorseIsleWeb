@@ -174,7 +174,15 @@ window.RufflePlayer.config = {
     {
       host: "<?php echo($gcfg["GAME_SERVER_EXTERNAL_IP"]); ?>", // The address of the server that Flash tries to connect to
       port: <?php echo($gcfg["PORT"]); ?> , // The port that Flash tries to connect to 
-	  proxyUrl: "ws://<?php echo($gcfg["GAME_SERVER_EXTERNAL_IP"] . ":" . $gcfg["PORT"]); ?>", // The actual proxy that Ruffle will connect to, instead of the above server
+
+	  proxyUrl: "<?php 
+		if(!isset($gcfg["WEBSOCKET_URL_OVERRIDE"])) {
+			echo("ws://" . $gcfg["GAME_SERVER_EXTERNAL_IP"] . ":" . $gcfg["PORT"]); 
+		}
+		else {
+			echo($gcfg["WEBSOCKET_URL_OVERRIDE"]);
+		}
+		?>", // The actual proxy that Ruffle will connect to, instead of the above server
     }
   ]
 };
