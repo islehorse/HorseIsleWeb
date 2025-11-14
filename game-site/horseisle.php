@@ -161,7 +161,7 @@ function DetectFlashVer(reqMajorVer, reqMinorVer, reqRevision)
 // -->
 </script>
 </head>
-<body data-ruffle-optout=1 bgcolor="#A797A7" MARGINWIDTH=0 MARGINHEIGHT=0 LEFTMARGIN=0 TOPMARGIN=0 onLoad="">
+<body bgcolor="#A797A7" MARGINWIDTH=0 MARGINHEIGHT=0 LEFTMARGIN=0 TOPMARGIN=0 onLoad="">
 <!--url's used in the movie-->
 <!--text used in the movie-->
 <CENTER>
