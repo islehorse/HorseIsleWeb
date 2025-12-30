@@ -193,13 +193,6 @@ if(isset($_GET['USER'])) {
 	$user = $_GET['USER']; 
 };
 
-if(isset($gcfg["FIX_OFFICAL_BUGS"])) {
-	if($gcfg["FIX_OFFICAL_BUGS"] == "true") {
-		$swf = "horseisle_mapfix.swf"; 
-	}
-};
-
-
 if($ruffle_enabled && isset($_GET["ruffle"])) {
 	echo('
 	window.RufflePlayer.config = {
