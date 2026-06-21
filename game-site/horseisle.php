@@ -1,13 +1,22 @@
 <?php
-  include("common.php");
-  $gcfg = get_cfg_game();
-  $cfg = get_cfg();
+include("common.php");
+$gcfg = get_cfg_game();
+$cfg = get_cfg();
+$ruffle_enabled = false;
 
- //if($gcfg["ENABLE_EOL_FEATURES"] == "true"){
- //	  header("Location: http://".str_replace("/", "", $cfg["MAIN_DOMAIN"])."/flashworkaround.php");
- //}
+if(isset($gcfg["ENABLE_WEBSOCKET"])) {
+	if($gcfg["ENABLE_WEBSOCKET"] == "true") {
+		$ruffle_enabled = true;
+	}
+}
+
+if(isset($gcfg["ENABLE_EOL_FEATURES"])) {
+	if($gcfg["ENABLE_EOL_FEATURES"] == "true" && $ruffle_enabled == false){
+		  header("Location: http://".str_replace("/", "", $cfg["MAIN_DOMAIN"])."/flashworkaround.php");
+	}
+}
 ?>
-<html lang="en">
+<?php if($ruffle_enabled) { echo('<html lang="en" data-ruffle-optout>'); } else { echo('<html lang="en">'); } ?>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>HORSEISLE - Secret Land of Horses</title>
