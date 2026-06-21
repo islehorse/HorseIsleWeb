@@ -23,11 +23,11 @@ if(isset($gcfg["ENABLE_EOL_FEATURES"])) {
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <!-- Google Analytics -->
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+<!--<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">-->
 </script>
 <script type="text/javascript">
 _uacct = "UA-1805076-1";
-urchinTracker();
+//urchinTracker();
 </script>
 
 <script language="javascript"><!--
@@ -97,6 +97,9 @@ function JSGetSwfVer(i){
 	// NS/Opera version >= 3 check for Flash plugin in plugin array
 	if (navigator.plugins != null && navigator.plugins.length > 0) {
 		if (navigator.plugins["Shockwave Flash 2.0"] || navigator.plugins["Shockwave Flash"]) {
+<?php 
+if($ruffle_enabled && !isset($_GET["ruffle"])) { echo ('if(navigator.plugins["Shockwave Flash"].filename == "ruffle.js") { return -1; };'); };
+?>
 			var swVer2 = navigator.plugins["Shockwave Flash 2.0"] ? " 2.0" : "";
       		var flashDescription = navigator.plugins["Shockwave Flash" + swVer2].description;
 			descArray = flashDescription.split(" ");
@@ -170,7 +173,7 @@ function DetectFlashVer(reqMajorVer, reqMinorVer, reqRevision)
 // -->
 </script>
 </head>
-<body class="data-ruffle-optout" bgcolor="#A797A7" MARGINWIDTH=0 MARGINHEIGHT=0 LEFTMARGIN=0 TOPMARGIN=0 onLoad="">
+<body bgcolor="#A797A7" MARGINWIDTH=0 MARGINHEIGHT=0 LEFTMARGIN=0 TOPMARGIN=0 onLoad="">
 <!--url's used in the movie-->
 <!--text used in the movie-->
 <CENTER>
