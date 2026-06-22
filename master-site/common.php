@@ -1,6 +1,6 @@
 <?php
 define("IS_GAME", false);
-$host = $_SERVER['SERVER_NAME'];
+$host = $_SERVER['HTTP_HOST'];
 
 $cfgDir = getenv("WEB_CONFIG_DIR");
 $cfgFile = getenv("WEB_CONF_FILE");
