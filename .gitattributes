@@ -1,0 +1,2 @@
+*.swf filter=lfs diff=lfs merge=lfs -text
+bgm* filter=lfs diff=lfs merge=lfs -text
