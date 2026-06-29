@@ -12,17 +12,17 @@ if(isset($_POST["USER"], $_POST["PASS"]))
 	$password = $_POST["PASS"];
 	if(!user_exists($username))
 		goto auth_failed;
-	$id = get_userid($username);
-	if(check_password($id, $password))
+	$id = getUserId($username);
+	if(check_password_hash($id, $password, getUserPasswordHash($id), getUserSalt($id)))
 	{
 		$_SESSION['LOGGED_IN'] = "YES";
 		$_SESSION['PLAYER_ID'] = $id;
-		$_SESSION['USERNAME'] = get_username($id);
-		$_SESSION['SEX'] = get_sex($id);
-		$_SESSION['ADMIN'] = get_admin($id);
-		$_SESSION['MOD'] = get_mod($id);
-		$_SESSION['PASSWORD_HASH'] = get_password_hash($id);
-		$_SESSION['SALT'] = get_salt($id);
+		$_SESSION['USERNAME'] = getUserName($id);
+		$_SESSION['SEX'] = getUserGender($id);
+		$_SESSION['ADMIN'] = getUserAdmin($id);
+		$_SESSION['MOD'] = getUserMod($id);
+		$_SESSION['PASSWORD_HASH'] = getUserPasswordHash($id);
+		$_SESSION['SALT'] = getUserSalt($id);
 	}
 	else
 	{ 
@@ -47,12 +47,12 @@ if(!is_logged_in() && isset($_GET["SLID"], $_GET["C"]))
 	{		
 		$_SESSION['LOGGED_IN'] = "YES";
 		$_SESSION['PLAYER_ID'] = $id;
-		$_SESSION['USERNAME'] = get_username($id);
-		$_SESSION['SEX'] = get_sex($id);
-		$_SESSION['ADMIN'] = get_admin($id) ? "YES" : "NO";
-		$_SESSION['MOD'] =  get_mod($id) ? "YES" : "NO";
-		$_SESSION['PASSWORD_HASH'] = get_password_hash($id);
-		$_SESSION['SALT'] = get_salt($id);
+		$_SESSION['USERNAME'] = getUserName($id);
+		$_SESSION['SEX'] = getUserGender($id);
+		$_SESSION['ADMIN'] = getUserAdmin($id) ? "YES" : "NO";
+		$_SESSION['MOD'] =  getUserMod($id) ? "YES" : "NO";
+		$_SESSION['PASSWORD_HASH'] = getUserPasswordHash($id);
+		$_SESSION['SALT'] = getUserSalt($id);
 
 		if($_SESSION['ADMIN'] == 'YES')
 			$_SESSION['MOD'] = 'YES';

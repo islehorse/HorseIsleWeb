@@ -2,6 +2,80 @@
 if(!function_exists('is_logged_in'))
 	include("common.php");
 
+function getUserName($id)
+{
+	$connect = sql_connect();
+	$stmt = $connect->prepare("SELECT username FROM Users WHERE playerId=?"); 
+	$stmt->bind_param("i", $id);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	return $result->fetch_row()[0];
+}
+
+function getUserId(string $username)
+{
+	$connect = sql_connect();	
+	$usernameUppercase = strtoupper($username);
+	$stmt = $connect->prepare("SELECT playerId FROM Users WHERE UPPER(username)=?"); 
+	$stmt->bind_param("s", $usernameUppercase);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	return intval($result->fetch_row()[0]);
+}
+
+function getUserGender($id) {
+	$connect = sql_connect();
+	
+	$stmt = $connect->prepare("SELECT gender FROM Users WHERE playerId=?"); 
+	$stmt->bind_param("i", $id);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	return $result->fetch_row()[0];
+}
+
+function getUserMod($id)
+{
+	$connect = sql_connect();
+	
+	$stmt = $connect->prepare("SELECT moderator FROM Users WHERE playerId=?"); 
+	$stmt->bind_param("i", $id);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	return $result->fetch_row()[0] === "YES";
+}
+
+function getUserPasswordHash($id)
+{
+	$connect = sql_connect();
+	$stmt = $connect->prepare("SELECT passHash FROM Users WHERE playerId=?"); 
+	$stmt->bind_param("i", $id);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	return $result->fetch_row()[0];
+	
+}
+
+function getUserSalt($id)
+{
+	$connect = sql_connect();	
+	$stmt = $connect->prepare("SELECT salt FROM Users WHERE playerId=?"); 
+	$stmt->bind_param("i", $id);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	return $result->fetch_row()[0];
+}
+
+function getUserAdmin($id)
+{
+	$connect = sql_connect();
+	
+	$stmt = $connect->prepare("SELECT admin FROM Users WHERE playerId=?"); 
+	$stmt->bind_param("i", $id);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	return $result->fetch_row()[0] === "YES";
+}
+
 function getPlayerList()
 {
 	$connect = sql_connect();
@@ -18,10 +92,11 @@ function getPlayerList()
 	return $users_on;
 }
 
+
 function checkUserBuddy($yourId, $friendsId)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT COUNT(1) FROM BuddyList WHERE (Id=? AND IdFriend=?) OR (Id=? AND IdFriend=?)");
+	$stmt = $connect->prepare("SELECT COUNT(1) FROM BuddyList WHERE (sendPlayerId=? AND recvPlayerId=?) OR (sendPlayerId=? AND recvPlayerId=?)");
 	$stmt->bind_param("iiii", $yourId, $friendsId, $friendsId, $yourId);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -39,14 +114,14 @@ function getNoPlayersOnlineInServer()
 function getNoSubbedPlayersOnlineInServer()
 {
 	$connect = sql_connect();
-	$onlineSubscribers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Subscribed = 'YES'");
+	$onlineSubscribers = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE subscribed = 'YES'");
 	return $onlineSubscribers->fetch_row()[0];
 }
 
 function getUserMoney($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT Money FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT money FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -61,7 +136,7 @@ function getUserMoney($id)
 function setUserMoney($id, $money)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("UPDATE UserExt SET Money=? WHERE Id=?");
+	$stmt = $connect->prepare("UPDATE UserExt SET money=? WHERE playerId=?");
 	$stmt->bind_param("ii", $money, $id);
 	$stmt->execute();
 }
@@ -75,7 +150,7 @@ function setUserSubbed($id, $subbed)
 		$subbedV = "NO";
 	
 	$connect = sql_connect();
-	$stmt = $connect->prepare("UPDATE UserExt SET Subscriber=? WHERE Id=?");
+	$stmt = $connect->prepare("UPDATE UserExt SET subscriber=? WHERE playerId=?");
 	$stmt->bind_param("si", $subedV, $id);
 	$stmt->execute();
 }
@@ -83,7 +158,7 @@ function setUserSubbed($id, $subbed)
 function setUserSubbedUntil($id, $subbedUntil)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("UPDATE UserExt SET SubscribedUntil=? WHERE Id=?");
+	$stmt = $connect->prepare("UPDATE UserExt SET subscribedUntil=? WHERE playerId=?");
 	$stmt->bind_param("ii", $subbedUntil, $id);
 	$stmt->execute();
 }
@@ -91,7 +166,7 @@ function setUserSubbedUntil($id, $subbedUntil)
 function getUserBankMoney($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT BankBalance FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT bankBalance FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -103,7 +178,7 @@ function getUserBankMoney($id)
 function getUserLoginDate($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT LastLogin FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT lastLogin FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -115,7 +190,7 @@ function getUserLoginDate($id)
 function getUserQuestPoints($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT QuestPoints FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT questPoints FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -127,7 +202,7 @@ function getUserQuestPoints($id)
 function getUserExistInExt($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT COUNT(*) FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT COUNT(*) FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -139,7 +214,7 @@ function getUserExistInExt($id)
 function getUserTotalLogins($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT TotalLogins FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT totalLogins FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -151,7 +226,7 @@ function getUserTotalLogins($id)
 function getUserPlaytime($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT FreeMinutes FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT freeMinutes FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -164,7 +239,7 @@ function getUserPlaytime($id)
 function getUserSubTimeRemaining($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT SubscribedUntil FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT subscribedUntil FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -177,7 +252,7 @@ function getUserSubTimeRemaining($id)
 function addItemToPuchaseQueue($playerId, $itemId, $itemCount)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("INSERT INTO ItemPurchaseQueue VALUES(?,?,?)");
+	$stmt = $connect->prepare("INSERT INTO itemPurchaseQueue VALUES(?,?,?)");
 	$stmt->bind_param("iii", $playerId, $itemId, $itemCount);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -187,7 +262,7 @@ function addItemToPuchaseQueue($playerId, $itemId, $itemCount)
 function getUserSubbed($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT Subscriber FROM UserExt WHERE Id=?");
+	$stmt = $connect->prepare("SELECT subscriber FROM UserExt WHERE playerId=?");
 	$stmt->bind_param("i", $id);
 	$stmt->execute();
 	$result = $stmt->get_result();	
@@ -200,7 +275,7 @@ function getUserSubbed($id)
 function isUserOnline($id)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT COUNT(1) FROM OnlineUsers WHERE playerId=?");
+	$stmt = $connect->prepare("SELECT COUNT(1) FROM onlineUsers WHERE playerId=?");
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -213,7 +288,7 @@ function isUserOnline($id)
 function getNoModPlayersOnlineInServer()
 {
 	$connect = sql_connect();
-	$onlineModerators = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE Moderator = 'YES' OR Admin='YES'");
+	$onlineModerators = mysqli_query($connect, "SELECT COUNT(1) FROM OnlineUsers WHERE moderator = 'YES' OR admin='YES'");
 	$num = $onlineModerators->fetch_row()[0];
 	mysqli_close($connect);
 	return $num;
@@ -223,7 +298,7 @@ function getNoModPlayersOnlineInServer()
 function checkUserIdExist(int $userid)
 {
 	$connect = sql_connect();
-	$stmt = $connect->prepare("SELECT COUNT(1) FROM Users WHERE Id=?");
+	$stmt = $connect->prepare("SELECT COUNT(1) FROM Users WHERE playerId=?");
 	$stmt->bind_param("i", $userid);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -300,7 +375,7 @@ if(isset($_GET["req"], $_GET["data"], $_GET["hmac"])) {
 				echo(json_encode(getUserSubTimeRemaining($data[0])));
 				break;
 			case "add_item_to_purchase_queue":
-				echo(json_encode(addItemToPuchaseQueue($data[0], $data[1], $data[2])));				
+				echo(json_encode(addItemToPuchaseQueue($data[0], $data[1], $data[2])));
 				break;
 			case "get_user_subbed":
 				echo(json_encode(getUserSubbed($data[0])));	
@@ -316,6 +391,27 @@ if(isset($_GET["req"], $_GET["data"], $_GET["hmac"])) {
 				break;
 			case "create_account_on_server":
 				echo(json_encode(createAccountOnServer($data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6])));
+				break;
+			case "get_user_name":
+				echo(json_encode(getUserName($data[0])));
+				break;
+			case "get_user_id":
+				echo(json_encode(getUserId($data[0])));
+				break;
+			case "get_user_gender":
+				echo(json_encode(getUserGender($data[0])));
+				break;
+			case "get_user_admin":
+				echo(json_encode(getUserAdmin($data[0])));
+				break;
+			case "get_user_mod":
+				echo(json_encode(getUserMod($data[0])));
+				break;
+			case "get_user_password_hash":
+				echo(json_encode(getUserPasswordHash($data[0])));
+				break;
+			case "get_user_salt":
+				echo(json_encode(getUserSalt($data[0])));
 				break;
 			default:
 				error_log("invalid api method");

@@ -645,13 +645,23 @@ function get_salt(int $userid)
 	return $result->fetch_row()[0];
 }
 
+function check_password_hash(int $userId, string $password, string $passhash, string $passsalt)
+{
+	$actualhash = hash_salt($password, hex2bin($passsalt));
+		
+	if($actualhash === $passhash)
+		return true;
+	else
+		return false;
+}
+
 function check_password(int $userId, string $password)
 {
 	$passhash = get_password_hash($userId);
 	$passsalt = hex2bin(get_salt($userId));
-	$acturalhash = hash_salt($password, $passsalt);
+	$actualhash = hash_salt($password, $passsalt);
 	
-	if($acturalhash === $passhash)
+	if($actualhash === $passhash)
 		return true;
 	else
 		return false;

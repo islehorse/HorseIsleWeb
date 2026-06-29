@@ -14,7 +14,7 @@ $budsOn = 0;
 <B><?php echo($numbOn)?> players<BR>online now:</B><?php
 
 for($i = 0; $i < $numbOn; $i++){
-	$name = get_username($on[$i]['id']);
+	$name = getUserName($on[$i]['id']);
 	$admin = $on[$i]['admin'];
 	$mod = $on[$i]['mod'];
 	$subbed = $on[$i]['subbed'];

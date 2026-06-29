@@ -201,7 +201,7 @@ if(!getUserExistInExt($toUser))
 	exit();
 }
 else{
-	$toUsername = get_username($toUser);
+	$toUsername = getUserName($toUser);
 }
 
 include("header.php");
