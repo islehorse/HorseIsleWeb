@@ -97,9 +97,6 @@ function JSGetSwfVer(i){
 	// NS/Opera version >= 3 check for Flash plugin in plugin array
 	if (navigator.plugins != null && navigator.plugins.length > 0) {
 		if (navigator.plugins["Shockwave Flash 2.0"] || navigator.plugins["Shockwave Flash"]) {
-<?php 
-if($ruffle_enabled && !isset($_GET["ruffle"])) { echo ('if(navigator.plugins["Shockwave Flash"].filename == "ruffle.js") { return -1; };'); };
-?>
 			var swVer2 = navigator.plugins["Shockwave Flash 2.0"] ? " 2.0" : "";
       		var flashDescription = navigator.plugins["Shockwave Flash" + swVer2].description;
 			descArray = flashDescription.split(" ");
